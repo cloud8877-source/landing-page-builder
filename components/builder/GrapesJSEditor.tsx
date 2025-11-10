@@ -98,13 +98,7 @@ export default function GrapesJSEditor({ onSave, initialHtml = '', initialCss = 
                 className: 'btn-show-json',
                 label: '<i class="fa fa-file-code"></i>',
                 context: 'show-json',
-                command(editor: any) {
-                  editor.Modal.setTitle('Components JSON')
-                    .setContent(`<textarea style="width:100%; height: 250px;">
-                      ${JSON.stringify(editor.getComponents())}
-                    </textarea>`)
-                    .open();
-                },
+                command: 'show-json-command',
               },
             ],
           },
@@ -240,12 +234,21 @@ export default function GrapesJSEditor({ onSave, initialHtml = '', initialCss = 
     editor.Commands.add('set-device-mobile', {
       run: (editor) => editor.setDevice('Mobile'),
     });
+    editor.Commands.add('show-json-command', {
+      run: (editor) => {
+        editor.Modal.setTitle('Components JSON')
+          .setContent(`<textarea style="width:100%; height: 250px;">
+            ${JSON.stringify(editor.getComponents())}
+          </textarea>`)
+          .open();
+      },
+    });
 
     // Auto-save every 30 seconds
     setInterval(() => {
       const html = editor.getHtml();
       const css = editor.getCss();
-      onSave(html, css);
+      onSave(html || '', css || '');
     }, 30000);
 
     editorRef.current = editor;
@@ -261,7 +264,7 @@ export default function GrapesJSEditor({ onSave, initialHtml = '', initialCss = 
     if (editorRef.current) {
       const html = editorRef.current.getHtml();
       const css = editorRef.current.getCss();
-      onSave(html, css);
+      onSave(html || '', css || '');
     }
   };
 
