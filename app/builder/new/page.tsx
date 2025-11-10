@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { isValidSubdomain } from '@/lib/utils';
+import { getTemplate } from '@/lib/templates';
 
 const templates = [
   {
@@ -85,6 +86,9 @@ export default function NewBuilderPage() {
         return;
       }
 
+      // Get template content
+      const template = getTemplate(formData.template);
+
       // Create site document
       const siteData = {
         userId: user.id,
@@ -92,8 +96,8 @@ export default function NewBuilderPage() {
         description: formData.description,
         subdomain: formData.subdomain,
         template: formData.template,
-        htmlContent: '',
-        cssContent: '',
+        htmlContent: template.html,
+        cssContent: template.css,
         jsContent: '',
         seoMetadata: {
           title: formData.title,
