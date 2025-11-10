@@ -8,14 +8,26 @@ import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/fire
 import { db } from '@/lib/firebase/config';
 import { Site } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, ExternalLink, Edit, Trash2, Globe } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import Sidebar from '@/components/dashboard/Sidebar';
+import SiteCard from '@/components/dashboard/SiteCard';
+import { Plus, Globe, TrendingUp, Eye, Menu, User, LogOut, Settings } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [sites, setSites] = useState<Site[]>([]);
   const [loadingSites, setLoadingSites] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -66,146 +78,197 @@ export default function DashboardPage() {
     }
   }
 
+  const handleSignOut = async () => {
+    await logout();
+    router.push('/login');
+  };
+
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">My Property Sites</h1>
-            <p className="text-gray-600 mt-2">
-              Welcome back, {user.displayName}!
-            </p>
-          </div>
-          <Link href="/builder/new">
-            <Button size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              Create New Site
-            </Button>
-          </Link>
-        </div>
+    <div className="flex min-h-screen bg-background">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden lg:block w-64 border-r bg-card">
+        <Sidebar />
+      </aside>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Total Sites</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{sites.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Published</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">
-                {sites.filter((s) => s.published).length}
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <aside className="w-64 bg-card h-full" onClick={(e) => e.stopPropagation()}>
+            <Sidebar />
+          </aside>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Navigation */}
+        <header className="bg-card border-b px-4 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">Dashboard</h1>
+                <p className="text-sm text-muted-foreground">
+                  Welcome back, {user.displayName}!
+                </p>
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Current Plan</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold capitalize">{user.plan}</div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
 
-        {/* Sites List */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold">Your Sites</h2>
+            <div className="flex items-center gap-4">
+              <Link href="/builder/new">
+                <Button size="sm" className="hidden sm:flex">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Site
+                </Button>
+              </Link>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar>
+                      <AvatarImage src={user.photoURL || undefined} alt={user.displayName} />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {user.displayName?.charAt(0).toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{user.displayName}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-auto p-4 lg:p-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+            <Card className="bg-gradient-to-br from-sky-500 to-blue-600 text-white border-0">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium opacity-90">Total Sites</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{sites.length}</div>
+                <p className="text-xs opacity-80 mt-1">All your properties</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Published</CardTitle>
+                <Globe className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">
+                  {sites.filter((s) => s.published).length}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Live on the web</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Views</CardTitle>
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">0</div>
+                <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Current Plan</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold capitalize">{user.plan}</div>
+                <p className="text-xs text-muted-foreground mt-1">Upgrade anytime</p>
+              </CardContent>
+            </Card>
           </div>
 
-          {loadingSites ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            </div>
-          ) : sites.length === 0 ? (
-            <div className="p-8 text-center">
-              <Globe className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No sites yet
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Get started by creating your first property landing page
-              </p>
+          {/* Sites Section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Your Sites</h2>
               <Link href="/builder/new">
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Your First Site
+                <Button size="sm" className="sm:hidden">
+                  <Plus className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
-          ) : (
-            <div className="divide-y">
-              {sites.map((site) => (
-                <div key={site.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-1">{site.title}</h3>
-                      <p className="text-gray-600 text-sm mb-2">{site.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Globe className="h-4 w-4" />
-                          {site.subdomain}.{process.env.NEXT_PUBLIC_BASE_DOMAIN}
-                        </span>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            site.published
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {site.published ? 'Published' : 'Draft'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {site.published && (
-                        <a
-                          href={`https://${site.subdomain}.${process.env.NEXT_PUBLIC_BASE_DOMAIN}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button variant="outline" size="sm">
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </a>
-                      )}
-                      <Link href={`/builder/${site.id}`}>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteSite(site.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+
+            {loadingSites ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : sites.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Globe className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No sites yet</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Get started by creating your first property landing page. Choose from beautiful templates designed for Malaysian properties.
+                </p>
+                <Link href="/builder/new">
+                  <Button size="lg">
+                    <Plus className="mr-2 h-5 w-5" />
+                    Create Your First Site
+                  </Button>
+                </Link>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                {sites.map((site) => (
+                  <SiteCard key={site.id} site={site} onDelete={deleteSite} />
+                ))}
+              </div>
+            )}
+          </div>
+        </main>
       </div>
     </div>
   );
