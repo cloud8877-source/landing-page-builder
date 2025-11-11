@@ -21,7 +21,15 @@ interface SiteCardProps {
 }
 
 export default function SiteCard({ site, onDelete }: SiteCardProps) {
-  const siteUrl = `https://${site.subdomain}.${process.env.NEXT_PUBLIC_BASE_DOMAIN}`;
+  // Check if this is a new landing page or old site
+  const isNewLandingPage = 'pageTitle' in site;
+  const displayTitle = isNewLandingPage ? (site as any).pageTitle : site.title;
+  const displayDescription = isNewLandingPage
+    ? `${(site as any).agentInfo?.name || 'Agent'} - ${(site as any).properties?.length || 0} properties`
+    : site.description;
+  const siteUrl = site.subdomain
+    ? `https://${site.subdomain}.${process.env.NEXT_PUBLIC_BASE_DOMAIN}`
+    : `${window.location.origin}/page/${site.id}`;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-200 group">
@@ -30,7 +38,7 @@ export default function SiteCard({ site, onDelete }: SiteCardProps) {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center p-8">
             <Building className="h-16 w-16 text-slate-400 mx-auto mb-2" />
-            <p className="text-sm text-slate-500 font-medium">{site.title}</p>
+            <p className="text-sm text-slate-500 font-medium">{displayTitle}</p>
           </div>
         </div>
 
@@ -49,12 +57,14 @@ export default function SiteCard({ site, onDelete }: SiteCardProps) {
               </Button>
             </a>
           )}
-          <Link href={`/builder/${site.id}`}>
-            <Button size="sm" variant="secondary">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          </Link>
+          {!isNewLandingPage && (
+            <Link href={`/builder/${site.id}`}>
+              <Button size="sm" variant="secondary">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Status Badge */}
@@ -68,15 +78,15 @@ export default function SiteCard({ site, onDelete }: SiteCardProps) {
       <CardContent className="p-4">
         <div className="space-y-3">
           <div>
-            <h3 className="font-semibold text-lg line-clamp-1">{site.title}</h3>
+            <h3 className="font-semibold text-lg line-clamp-1">{displayTitle}</h3>
             <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-              {site.description}
+              {displayDescription}
             </p>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Globe className="h-3.5 w-3.5" />
-            <span className="truncate">{site.subdomain}</span>
+            <span className="truncate">{site.subdomain || `page/${site.id.slice(0, 8)}`}</span>
             <span className="text-muted-foreground/50">•</span>
             <Calendar className="h-3.5 w-3.5" />
             <span>
@@ -101,12 +111,14 @@ export default function SiteCard({ site, onDelete }: SiteCardProps) {
                 </Button>
               </a>
             )}
-            <Link href={`/builder/${site.id}`} className="flex-1">
-              <Button variant="outline" size="sm" className="w-full">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-            </Link>
+            {!isNewLandingPage && (
+              <Link href={`/builder/${site.id}`} className="flex-1">
+                <Button variant="outline" size="sm" className="w-full">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              </Link>
+            )}
             <Button
               variant="outline"
               size="sm"
