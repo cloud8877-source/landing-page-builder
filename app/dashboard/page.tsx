@@ -45,11 +45,16 @@ export default function DashboardPage() {
     if (!user) return;
 
     try {
-      const q = query(collection(db, 'sites'), where('userId', '==', user.id));
-      const querySnapshot = await getDocs(q);
+      // Fetch from both 'sites' and 'landingPages' collections
+      const [sitesQuery, landingPagesQuery] = await Promise.all([
+        getDocs(query(collection(db, 'sites'), where('userId', '==', user.id))),
+        getDocs(query(collection(db, 'landingPages'), where('userId', '==', user.id))),
+      ]);
 
       const sitesData: Site[] = [];
-      querySnapshot.forEach((doc) => {
+
+      // Add old sites
+      sitesQuery.forEach((doc) => {
         sitesData.push({
           id: doc.id,
           ...doc.data(),
@@ -57,6 +62,26 @@ export default function DashboardPage() {
           updatedAt: doc.data().updatedAt?.toDate() || new Date(),
         } as Site);
       });
+
+      // Add new landing pages
+      landingPagesQuery.forEach((doc) => {
+        const data = doc.data();
+        sitesData.push({
+          id: doc.id,
+          userId: data.userId,
+          title: data.pageTitle || data.title || 'Untitled',
+          subdomain: data.subdomain || '',
+          template: data.templateId || data.template || '',
+          published: data.published || false,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          // Include new fields for compatibility
+          ...data,
+        } as Site);
+      });
+
+      // Sort by updatedAt descending
+      sitesData.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
       setSites(sitesData);
     } catch (error) {
@@ -70,7 +95,13 @@ export default function DashboardPage() {
     if (!confirm('Are you sure you want to delete this site?')) return;
 
     try {
-      await deleteDoc(doc(db, 'sites', siteId));
+      // Try deleting from both collections
+      // One will succeed, one will fail silently
+      await Promise.allSettled([
+        deleteDoc(doc(db, 'sites', siteId)),
+        deleteDoc(doc(db, 'landingPages', siteId)),
+      ]);
+
       setSites(sites.filter((s) => s.id !== siteId));
     } catch (error) {
       console.error('Error deleting site:', error);
