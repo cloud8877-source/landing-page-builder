@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { getTemplateMetadata } from '@/lib/templates/metadata';
 import { LandingPageFormData, Property } from '@/lib/types';
+import { isDemoMode, getDemoUser } from '@/lib/demo-mode';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,14 +21,18 @@ function CustomizePageContent() {
   const templateId = searchParams.get('template') || 'template-a';
   const template = getTemplateMetadata(templateId);
 
+  // Check demo mode
+  const isDemo = isDemoMode();
+  const effectiveUser = isDemo ? getDemoUser() : user;
+
   // Form state
   const [formData, setFormData] = useState<LandingPageFormData>({
     pageTitle: '',
     templateId: templateId as any,
     agentInfo: {
-      name: user?.name || '',
+      name: effectiveUser?.name || '',
       phone: '',
-      email: user?.email || '',
+      email: effectiveUser?.email || '',
       whatsapp: '',
       logoUrl: '',
     },
@@ -41,10 +46,10 @@ function CustomizePageContent() {
   const [currentStep, setCurrentStep] = useState<'basic' | 'properties'>('basic');
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !isDemo) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, loading, isDemo, router]);
 
   const addProperty = () => {
     if (formData.properties.length >= 6) {
@@ -146,7 +151,7 @@ function CustomizePageContent() {
     }
   };
 
-  if (loading) {
+  if (loading && !isDemo) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -159,6 +164,17 @@ function CustomizePageContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-sm font-medium">
+              🎨 <strong>Demo Mode</strong> - Try the full builder without signing up!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-card border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">

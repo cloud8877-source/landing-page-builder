@@ -16,7 +16,10 @@ export default function SelectTemplatePage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const templates = getAllTemplates();
 
-  if (loading) {
+  // Check if in demo mode
+  const isDemoModeActive = typeof window !== 'undefined' && localStorage.getItem('demo_mode_active') === 'true';
+
+  if (loading && !isDemoModeActive) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -27,7 +30,7 @@ export default function SelectTemplatePage() {
     );
   }
 
-  if (!user) {
+  if (!user && !isDemoModeActive) {
     router.push('/login');
     return null;
   }
@@ -39,17 +42,28 @@ export default function SelectTemplatePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Demo Mode Banner */}
+      {isDemoModeActive && (
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-sm font-medium">
+              🎨 <strong>Demo Mode</strong> - Exploring the builder without signing up. You can sign up later to save and publish!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-card border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
               <Link
-                href="/dashboard"
+                href={isDemoModeActive ? '/' : '/dashboard'}
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition mb-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
+                {isDemoModeActive ? 'Back to Home' : 'Back to Dashboard'}
               </Link>
               <h1 className="text-3xl font-bold">Create New Landing Page</h1>
               <p className="text-muted-foreground mt-1">
