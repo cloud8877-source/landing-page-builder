@@ -240,7 +240,6 @@ export default function TemplateB({ data }: TemplateBProps) {
                     name="name"
                     required
                     className="w-full px-4 py-3 bg-slate-950 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-white"
-                    style={{ focusRingColor: branding.primaryColor }}
                     placeholder="John Doe"
                   />
                 </div>

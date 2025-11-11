@@ -39,15 +39,15 @@ export default function Navbar() {
                     {user.photoURL ? (
                       <img
                         src={user.photoURL}
-                        alt={user.displayName}
+                        alt={user.displayName || user.email}
                         className="h-6 w-6 rounded-full"
                       />
                     ) : (
                       <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs">
-                        {user.displayName.charAt(0).toUpperCase()}
+                        {(user.displayName || user.email)?.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span>{user.displayName}</span>
+                    <span>{user.displayName || user.email}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

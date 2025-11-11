@@ -81,8 +81,8 @@ export default function SubdomainSitePage() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: site.cssContent }} />
-      <div dangerouslySetInnerHTML={{ __html: site.htmlContent }} />
+      <style dangerouslySetInnerHTML={{ __html: site.cssContent || '' }} />
+      <div dangerouslySetInnerHTML={{ __html: site.htmlContent || '' }} />
     </>
   );
 }

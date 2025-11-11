@@ -55,24 +55,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
+          name: firebaseUser.displayName || userData.displayName || userData.name || '',
           displayName: firebaseUser.displayName || userData.displayName || '',
           photoURL: firebaseUser.photoURL || undefined,
-          subdomain: userData.subdomain,
           createdAt: userData.createdAt?.toDate() || new Date(),
+          subscription: userData.subscription || userData.plan || 'free',
           plan: userData.plan || 'free',
-          whatsappNumber: userData.whatsappNumber,
-          language: userData.language || 'en',
         });
       } else {
         // Create new user document
         const newUser: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
+          name: firebaseUser.displayName || firebaseUser.email || '',
           displayName: firebaseUser.displayName || '',
           photoURL: firebaseUser.photoURL || undefined,
           createdAt: new Date(),
+          subscription: 'free',
           plan: 'free',
-          language: 'en',
         };
 
         await setDoc(doc(db, 'users', firebaseUser.uid), {

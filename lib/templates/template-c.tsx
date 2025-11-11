@@ -273,7 +273,6 @@ export default function TemplateC({ data }: TemplateCProps) {
                       name="name"
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:border-transparent"
-                      style={{ focusRingColor: branding.primaryColor }}
                       placeholder="Your name"
                     />
                   </div>

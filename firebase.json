@@ -1,11 +1,14 @@
 {
   "hosting": {
-    "public": "public",
+    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ]
+    ],
+    "frameworksBackend": {
+      "region": "asia-southeast1"
+    }
   },
   "firestore": {
     "database": "(default)",
