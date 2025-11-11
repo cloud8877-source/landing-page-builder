@@ -1,18 +1,89 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 12, 10);
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Helper function to verify App Check token (optional but recommended)
+    function hasValidAppCheck() {
+      // In production, uncomment this to enforce App Check
+      // return request.app != null;
+      return true; // Allow during testing phase
+    }
+
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read: if isOwner(userId) && hasValidAppCheck();
+      allow create: if isAuthenticated() && request.auth.uid == userId && hasValidAppCheck();
+      allow update: if isOwner(userId) && hasValidAppCheck();
+      allow delete: if isOwner(userId) && hasValidAppCheck();
+    }
+
+    // Landing Pages collection
+    match /landingPages/{pageId} {
+      // Anyone can read published landing pages (for public viewing)
+      allow read: if resource.data.published == true || isOwner(resource.data.userId);
+
+      // Only authenticated owners can create their own pages
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      hasValidAppCheck();
+
+      // Only owners can update/delete their pages
+      allow update, delete: if isOwner(resource.data.userId) && hasValidAppCheck();
+    }
+
+    // Legacy sites collection (for backward compatibility)
+    match /sites/{siteId} {
+      allow read: if resource.data.published == true || isOwner(resource.data.userId);
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      hasValidAppCheck();
+      allow update, delete: if isOwner(resource.data.userId) && hasValidAppCheck();
+    }
+
+    // Leads collection
+    match /leads/{leadId} {
+      // Visitors can create leads (contact forms)
+      allow create: if request.resource.data.pageId != null &&
+                      request.resource.data.name != null &&
+                      request.resource.data.email != null &&
+                      hasValidAppCheck();
+
+      // Only page owners can read their leads
+      allow read: if isOwner(resource.data.userId) && hasValidAppCheck();
+
+      // Only page owners can update lead status
+      allow update: if isOwner(resource.data.userId) && hasValidAppCheck();
+
+      // Page owners can delete their leads
+      allow delete: if isOwner(resource.data.userId) && hasValidAppCheck();
+    }
+
+    // Subscriptions collection
+    match /subscriptions/{subscriptionId} {
+      // Only subscription owners can read their subscription
+      allow read: if isOwner(resource.data.userId) && hasValidAppCheck();
+
+      // Users can create their own subscriptions
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      hasValidAppCheck();
+
+      // Only owners can update their subscriptions
+      allow update: if isOwner(resource.data.userId) && hasValidAppCheck();
+
+      // Prevent deletion (subscriptions should be cancelled, not deleted)
+      allow delete: if false;
     }
   }
 }

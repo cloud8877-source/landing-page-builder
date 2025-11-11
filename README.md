@@ -133,6 +133,28 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 2. Under "Your apps", click "Web app"
 3. Copy the configuration values to your `.env` file
 
+### 6. Set up Firebase App Check (Recommended for Security)
+
+Firebase App Check protects your backend resources from abuse:
+
+1. **Set up reCAPTCHA v3**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/security/recaptcha)
+   - Create a new reCAPTCHA v3 key
+   - Add your domains (localhost, vercel domain)
+   - Copy the Site Key
+
+2. **Enable App Check in Firebase**
+   - Go to Firebase Console → Your Project → App Check
+   - Click "Get Started"
+   - Select reCAPTCHA v3
+   - Paste your Site Key
+   - Enable enforcement for Firestore and Storage (after testing)
+
+3. **Add to Environment Variables**
+   ```env
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+   ```
+
 ## Billplz Setup
 
 1. Sign up at [Billplz](https://www.billplz.com/)
@@ -207,22 +229,73 @@ Templates automatically adjust based on user's language preference.
 
 ## Deployment
 
-### Deploy to Vercel
+### Deploy to Vercel (Recommended)
 
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
+Vercel provides the best hosting experience for Next.js applications:
 
-### Deploy to Firebase Hosting
+1. **Push code to GitHub** (if not already done)
+   ```bash
+   git add .
+   git commit -m "Prepare for Vercel deployment"
+   git push origin main
+   ```
+
+2. **Deploy to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Vercel will auto-detect Next.js settings
+
+3. **Add Environment Variables**
+
+   In Vercel Dashboard → Settings → Environment Variables, add all variables from `.env.example`:
+
+   ```env
+   # Copy all values from your .env.example file
+   # Use your actual Firebase project credentials
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.firebasestorage.app
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+
+   # Optional: Add your custom domain
+   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+   NEXT_PUBLIC_BASE_DOMAIN=your-app.vercel.app
+
+   # Billplz (if you have it)
+   BILLPLZ_API_KEY=your_billplz_api_key
+   BILLPLZ_COLLECTION_ID=your_collection_id
+   BILLPLZ_X_SIGNATURE_KEY=your_signature_key
+
+   NEXT_PUBLIC_WHATSAPP_DEFAULT_NUMBER=60123456789
+   ```
+
+   **Note:** Never commit actual API keys to your repository. Keep them in `.env.local` (which is gitignored).
+
+4. **Deploy**
+   - Click "Deploy"
+   - Vercel will build and deploy your app
+   - Your app will be live at `https://your-app.vercel.app`
+
+5. **Update Firebase Authorized Domains**
+   - Go to Firebase Console → Authentication → Settings → Authorized domains
+   - Add your Vercel domain to authorized domains
+
+### Deploy Firebase Backend
 
 ```bash
-# Build the project
-npm run build
-npm run export
+# Deploy Firestore rules and indexes
+firebase deploy --only firestore
 
-# Deploy to Firebase
-firebase deploy --only hosting
+# Deploy Storage rules (after enabling Storage)
+firebase deploy --only storage
+
+# Deploy Cloud Functions
+firebase deploy --only functions
 ```
 
 ## Subdomain Configuration
