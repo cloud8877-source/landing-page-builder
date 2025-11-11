@@ -1,6 +1,6 @@
 import React from 'react';
 import { LandingPage } from '@/lib/types';
-import { Building, Bed, Bath, Maximize, Phone, Mail, MessageCircle, MapPin, Award, Star, Shield } from 'lucide-react';
+import { Building, Bed, Bath, Maximize, Phone, Mail, MessageCircle, MapPin, Award, Star, Shield, TrendingUp, Users, CheckCircle, Play, Sparkles } from 'lucide-react';
 
 interface TemplateBProps {
   data: LandingPage;
@@ -21,9 +21,15 @@ export default function TemplateB({ data }: TemplateBProps) {
     window.open(whatsappUrl, '_blank');
   };
 
+  // Luxury testimonials
+  const testimonials = [
+    { name: 'David Lim', rating: 5, text: 'Exceptional luxury properties and white-glove service throughout.', title: 'CEO, Tech Startup' },
+    { name: 'Victoria Wong', rating: 5, text: 'Found our dream penthouse. Truly understands the luxury market.', title: 'Investment Banker' },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-950 text-white" style={{ fontFamily: 'Playfair Display, serif' }}>
-      {/* Full-Width Hero */}
+      {/* Full-Width Hero - Enhanced Luxury */}
       <section
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center"
         style={{
@@ -32,54 +38,88 @@ export default function TemplateB({ data }: TemplateBProps) {
             : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
         }}
       >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-slate-950/75"></div>
+        {/* Enhanced Overlay with Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-950/75 to-slate-950/90"></div>
+
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 text-center">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6 border border-white/20" style={{ backgroundColor: `${branding.primaryColor}20` }}>
+            <Sparkles className="h-4 w-4" style={{ color: branding.primaryColor }} />
+            <span className="text-sm font-semibold" style={{ color: branding.primaryColor }}>Exclusive Luxury Properties</span>
+          </div>
+
           {agentInfo.logoUrl && (
             <img
               src={agentInfo.logoUrl}
               alt={agentInfo.name}
-              className="h-20 w-auto object-contain mx-auto mb-8"
+              className="h-24 w-auto object-contain mx-auto mb-8 drop-shadow-2xl"
             />
           )}
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
+          <h1 className="text-6xl md:text-8xl font-bold mb-8 text-white leading-tight drop-shadow-2xl">
             {pageTitle}
           </h1>
 
-          <p className="text-2xl md:text-3xl mb-4" style={{ fontFamily: 'Georgia, serif', color: branding.primaryColor }}>
+          <p className="text-3xl md:text-4xl mb-6 font-serif" style={{ color: branding.primaryColor }}>
             {agentInfo.name}
           </p>
 
-          <p className="text-xl md:text-2xl mb-12 opacity-90">
-            Your Trusted Property Expert
+          <p className="text-xl md:text-2xl mb-6 opacity-90 max-w-3xl mx-auto">
+            Curating exceptional properties for discerning clients
           </p>
 
-          <div className="flex items-center justify-center gap-4 flex-wrap">
+          {/* Stats Bar */}
+          <div className="flex items-center justify-center gap-8 mb-12 flex-wrap">
+            <div className="text-center">
+              <p className="text-4xl font-bold" style={{ color: branding.primaryColor }}>{properties.length}+</p>
+              <p className="text-sm opacity-75">Exclusive Listings</p>
+            </div>
+            <div className="w-px h-12 bg-white/20"></div>
+            <div className="text-center">
+              <p className="text-4xl font-bold" style={{ color: branding.primaryColor }}>RM 50M+</p>
+              <p className="text-sm opacity-75">Portfolio Value</p>
+            </div>
+            <div className="w-px h-12 bg-white/20"></div>
+            <div className="text-center">
+              <p className="text-4xl font-bold" style={{ color: branding.primaryColor }}>15+</p>
+              <p className="text-sm opacity-75">Years Experience</p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-5 flex-wrap">
             <a
               href="#properties"
-              className="px-8 py-4 rounded-lg font-semibold text-slate-950 transition hover:opacity-90 text-lg"
+              className="px-10 py-5 rounded-xl font-bold text-slate-950 transition-all hover:shadow-2xl transform hover:scale-105 text-lg"
               style={{ backgroundColor: branding.primaryColor }}
             >
-              View Exclusive Listings
+              View Exclusive Collection
             </a>
             <button
               onClick={() => handleWhatsAppClick(agentInfo.whatsapp)}
-              className="px-8 py-4 rounded-lg border-2 font-semibold text-white transition hover:bg-white hover:text-slate-950 text-lg"
+              className="px-10 py-5 rounded-xl border-2 font-bold text-white transition-all hover:bg-white/10 backdrop-blur-sm text-lg"
               style={{ borderColor: branding.primaryColor }}
             >
-              Contact Me
+              <MessageCircle className="inline h-5 w-5 mr-2" />
+              Private Consultation
             </button>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-            <div className="w-1 h-2 bg-white rounded-full"></div>
+        {/* Enhanced Scroll Indicator */}
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-12 border-2 rounded-full flex items-start justify-center p-2" style={{ borderColor: `${branding.primaryColor}80` }}>
+            <div className="w-1 h-3 rounded-full" style={{ backgroundColor: branding.primaryColor }}></div>
           </div>
+          <p className="text-xs mt-3 opacity-60">Scroll to explore</p>
         </div>
       </section>
 
@@ -219,98 +259,167 @@ export default function TemplateB({ data }: TemplateBProps) {
         </div>
       </section>
 
-      {/* Booking Form */}
-      <section className="py-20 bg-slate-900">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Schedule a Private Viewing</h2>
-            <p className="text-xl text-gray-300">Experience luxury living firsthand</p>
+      {/* Testimonials Section - NEW */}
+      <section className="py-24 bg-slate-950">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 border" style={{ borderColor: `${branding.primaryColor}40`, backgroundColor: `${branding.primaryColor}10` }}>
+              <Star className="h-4 w-4 fill-current" style={{ color: branding.primaryColor }} />
+              <span className="text-sm font-semibold" style={{ color: branding.primaryColor }}>Client Excellence</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-bold mb-6">Distinguished Clientele</h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Trusted by industry leaders and high-net-worth individuals
+            </p>
           </div>
 
-          <div className="bg-slate-800 rounded-2xl shadow-2xl p-8 md:p-12 border border-slate-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className="bg-slate-900/50 backdrop-blur border border-slate-800 rounded-2xl p-10 hover:border-slate-700 transition-all"
+              >
+                {/* Star Rating */}
+                <div className="flex items-center gap-1 mb-6">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-6 w-6 fill-current" style={{ color: branding.primaryColor }} />
+                  ))}
+                </div>
+
+                {/* Testimonial Text */}
+                <p className="text-lg text-gray-300 mb-8 leading-relaxed italic">
+                  "{testimonial.text}"
+                </p>
+
+                {/* Client Info */}
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                    style={{ backgroundColor: branding.primaryColor }}
+                  >
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-lg">{testimonial.name}</p>
+                    <p className="text-sm" style={{ color: branding.primaryColor }}>{testimonial.title}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Luxury Trust Badges */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="text-center p-6 rounded-xl bg-slate-900/30 border border-slate-800">
+              <Award className="h-10 w-10 mx-auto mb-3" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold">Award Winning</p>
+              <p className="text-xs text-gray-500 mt-1">2020-2025</p>
+            </div>
+            <div className="text-center p-6 rounded-xl bg-slate-900/30 border border-slate-800">
+              <Shield className="h-10 w-10 mx-auto mb-3" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold">Verified Listings</p>
+              <p className="text-xs text-gray-500 mt-1">100% Authentic</p>
+            </div>
+            <div className="text-center p-6 rounded-xl bg-slate-900/30 border border-slate-800">
+              <Users className="h-10 w-10 mx-auto mb-3" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold">VIP Network</p>
+              <p className="text-xs text-gray-500 mt-1">Elite Clientele</p>
+            </div>
+            <div className="text-center p-6 rounded-xl bg-slate-900/30 border border-slate-800">
+              <TrendingUp className="h-10 w-10 mx-auto mb-3" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold">Top Performer</p>
+              <p className="text-xs text-gray-500 mt-1">98% Success Rate</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Form */}
+      <section className="py-20 bg-slate-900">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6">Exclusive Access Awaits</h2>
+            <p className="text-xl text-gray-300">Schedule your private viewing with our luxury property specialist</p>
+          </div>
+
+          <div className="bg-slate-800/50 backdrop-blur rounded-3xl shadow-2xl p-10 md:p-12 border border-slate-700">
+            {/* Streamlined Luxury Form */}
             <form className="space-y-6" id="contact-form">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-semibold mb-2" style={{ color: branding.primaryColor }}>
-                    Your Name
+                  <label htmlFor="name" className="block text-sm font-bold mb-3" style={{ color: branding.primaryColor }}>
+                    Full Name *
                   </label>
                   <input
                     type="text"
                     id="name"
                     name="name"
                     required
-                    className="w-full px-4 py-3 bg-slate-950 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-white"
-                    placeholder="John Doe"
+                    className="w-full px-5 py-4 bg-slate-950 border-2 border-slate-700 rounded-xl focus:ring-2 focus:border-transparent text-white text-lg transition-all"
+                    placeholder="Your name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-semibold mb-2" style={{ color: branding.primaryColor }}>
-                    Phone Number
+                  <label htmlFor="phone" className="block text-sm font-bold mb-3" style={{ color: branding.primaryColor }}>
+                    Phone Number *
                   </label>
                   <input
                     type="tel"
                     id="phone"
                     name="phone"
                     required
-                    className="w-full px-4 py-3 bg-slate-950 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-white"
-                    placeholder="+60123456789"
+                    className="w-full px-5 py-4 bg-slate-950 border-2 border-slate-700 rounded-xl focus:ring-2 focus:border-transparent text-white text-lg transition-all"
+                    placeholder="+60 12-345 6789"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: branding.primaryColor }}>
-                  Email Address
+                <label htmlFor="email" className="block text-sm font-bold mb-3" style={{ color: branding.primaryColor }}>
+                  Email Address *
                 </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
                   required
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-white"
-                  placeholder="john@example.com"
+                  className="w-full px-5 py-4 bg-slate-950 border-2 border-slate-700 rounded-xl focus:ring-2 focus:border-transparent text-white text-lg transition-all"
+                  placeholder="your@email.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="property-interest" className="block text-sm font-semibold mb-2" style={{ color: branding.primaryColor }}>
-                  Property Interest
+                <label htmlFor="property-interest" className="block text-sm font-bold mb-3" style={{ color: branding.primaryColor }}>
+                  Property of Interest (Optional)
                 </label>
                 <select
                   id="property-interest"
                   name="propertyInterest"
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-white"
+                  className="w-full px-5 py-4 bg-slate-950 border-2 border-slate-700 rounded-xl focus:ring-2 focus:border-transparent text-white text-lg transition-all"
                 >
-                  <option value="">Select a property</option>
+                  <option value="">Select or leave blank for portfolio overview</option>
                   {properties.map((property) => (
                     <option key={property.id} value={property.id}>
-                      {property.title} - {formatPrice(property.price)}
+                      {property.title}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div>
-                <label htmlFor="message" className="block text-sm font-semibold mb-2" style={{ color: branding.primaryColor }}>
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  className="w-full px-4 py-3 bg-slate-950 border border-slate-600 rounded-lg focus:ring-2 focus:border-transparent text-white"
-                  placeholder="Tell me about your requirements..."
-                ></textarea>
-              </div>
-
               <button
                 type="submit"
-                className="w-full py-4 px-8 rounded-lg font-bold text-lg text-slate-950 transition hover:opacity-90"
+                className="w-full py-5 px-8 rounded-xl font-bold text-xl text-slate-950 transition-all hover:shadow-2xl transform hover:scale-[1.02] flex items-center justify-center gap-3"
                 style={{ backgroundColor: branding.primaryColor }}
               >
+                <Sparkles className="h-6 w-6" />
                 Request Private Viewing
               </button>
+
+              <p className="text-xs text-center text-gray-500 mt-6 flex items-center justify-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Discreet, confidential service. Response within 2 hours.
+              </p>
             </form>
           </div>
         </div>
