@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasDemoDataToConvert } from '@/lib/demo-mode';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -28,9 +31,15 @@ export default function LoginForm() {
       } else {
         await signIn(email, password);
       }
+
+      // Check if there's demo data to convert
+      if (hasDemoDataToConvert()) {
+        router.push('/complete-signup');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
-    } finally {
       setLoading(false);
     }
   }
@@ -41,9 +50,15 @@ export default function LoginForm() {
 
     try {
       await signInWithGoogle();
+
+      // Check if there's demo data to convert
+      if (hasDemoDataToConvert()) {
+        router.push('/complete-signup');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
-    } finally {
       setLoading(false);
     }
   }

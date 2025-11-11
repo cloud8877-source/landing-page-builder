@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { LandingPageFormData, LandingPage } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Eye, Globe, Monitor, Smartphone, Tablet } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { ArrowLeft, Download, Eye, Globe, Monitor, Smartphone, Tablet, Sparkles, LogIn } from 'lucide-react';
+import { isDemoMode, getDemoUser, saveDemoData, disableDemoMode } from '@/lib/demo-mode';
 import TemplateA from '@/lib/templates/template-a';
 import TemplateB from '@/lib/templates/template-b';
 import TemplateC from '@/lib/templates/template-c';
@@ -18,9 +21,14 @@ export default function PreviewPage() {
   const [formData, setFormData] = useState<LandingPageFormData | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+
+  // Check demo mode
+  const isDemo = isDemoMode();
+  const effectiveUser = isDemo ? getDemoUser() : user;
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !isDemo) {
       router.push('/login');
       return;
     }
@@ -31,6 +39,10 @@ export default function PreviewPage() {
       try {
         const data = JSON.parse(savedData);
         setFormData(data);
+        // If in demo mode, also save to localStorage
+        if (isDemo) {
+          saveDemoData(data);
+        }
       } catch (error) {
         console.error('Error parsing form data:', error);
         router.push('/builder/select-template');
@@ -38,10 +50,19 @@ export default function PreviewPage() {
     } else {
       router.push('/builder/select-template');
     }
-  }, [loading, user, router]);
+  }, [loading, user, isDemo, router]);
 
   const handlePublish = async () => {
-    if (!formData || !user) return;
+    if (!formData) return;
+
+    // If demo mode, show signup prompt
+    if (isDemo) {
+      setShowSignupPrompt(true);
+      return;
+    }
+
+    // Regular publish flow for authenticated users
+    if (!user) return;
 
     setPublishing(true);
 
@@ -124,7 +145,7 @@ export default function PreviewPage() {
     `.trim();
   };
 
-  if (loading || !formData) {
+  if ((loading && !isDemo) || !formData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -138,7 +159,7 @@ export default function PreviewPage() {
   // Convert formData to LandingPage format for template rendering
   const landingPageData: LandingPage = {
     id: 'preview',
-    userId: user?.id || '',
+    userId: effectiveUser?.id || '',
     templateId: formData.templateId,
     pageTitle: formData.pageTitle,
     agentInfo: formData.agentInfo,
@@ -164,6 +185,62 @@ export default function PreviewPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-sm font-medium">
+              🎨 <strong>Demo Mode</strong> - Sign up free to publish and get your live URL!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Signup Prompt Modal */}
+      {showSignupPrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+          <Card className="max-w-md w-full p-8 relative">
+            <button
+              onClick={() => setShowSignupPrompt(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+
+              <h2 className="text-2xl font-bold mb-2">Love What You Built?</h2>
+              <p className="text-gray-600 mb-6">
+                Sign up free to publish your landing page and get a live URL to share with clients!
+              </p>
+
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-left">
+                  <p className="font-semibold text-blue-900 mb-2">✅ Your work is saved!</p>
+                  <p className="text-blue-700">
+                    After signing up, we'll restore your landing page so you can publish it immediately.
+                  </p>
+                </div>
+
+                <Link href="/login">
+                  <Button className="w-full" size="lg">
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Sign Up Free - Publish Your Page
+                  </Button>
+                </Link>
+
+                <p className="text-xs text-gray-500">
+                  No credit card required • Takes 30 seconds
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-card border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
