@@ -1,5 +1,11 @@
 # Quick Setup Guide
 
+## ⚠️ SECURITY WARNING - IMPORTANT
+**NEVER commit your `.env` file or any files containing actual API keys to version control!**
+- Use `.env.local` for local development (already in .gitignore)
+- Keep `.env.example` as a template with placeholder values only
+- If you accidentally expose API keys, regenerate them immediately in Google Cloud Console
+
 ## Step 1: Install Dependencies
 
 ```bash
@@ -8,14 +14,16 @@ npm install
 
 ## Step 2: Configure Environment Variables
 
-1. Copy the example file:
-```bash
-cp .env.example .env
-```
+1. **Copy the example file:**
+   ```bash
+   cp .env.example .env.local
+   ```
 
-2. Fill in your Firebase credentials (get from Firebase Console)
-3. Add Billplz API keys (get from Billplz dashboard)
-4. Set your WhatsApp number for lead notifications
+2. **Fill in your Firebase credentials** (get from Firebase Console)
+3. **Add Billplz API keys** (get from Billplz dashboard)
+4. **Set your WhatsApp number** for lead notifications
+
+**Note:** Use `.env.local` instead of `.env` to ensure it's excluded from version control.
 
 ## Step 3: Set up Firebase
 
@@ -56,7 +64,9 @@ firebase deploy --only firestore,storage
 2. Scroll down to "Your apps"
 3. Click the web icon (</>)
 4. Register your app
-5. Copy the config values to your .env file
+5. Copy the config values to your `.env.local` file
+
+**Important:** These are public Firebase config values safe for client-side use.
 
 ## Step 5: Set up Billplz (Optional)
 
@@ -64,7 +74,7 @@ firebase deploy --only firestore,storage
 2. Go to Settings > API Keys
 3. Copy your API Secret Key
 4. Create a Collection and copy the Collection ID
-5. Add both to your .env file
+5. Add both to your `.env.local` file
 
 ## Step 6: Run Development Server
 
@@ -85,14 +95,16 @@ Visit http://localhost:3000
 ## Troubleshooting
 
 ### Firebase Connection Issues
-- Make sure all environment variables are set correctly
+- Make sure all environment variables are set correctly in `.env.local`
 - Check that Firebase rules are deployed
 - Verify your domain is authorized in Firebase Console
+- Ensure the development server has been restarted after adding environment variables
 
 ### Page Builder Not Loading
 - Clear browser cache
 - Check browser console for errors
 - Make sure GrapesJS dependencies are installed
+- Restart the development server
 
 ### Subdomain Routing Not Working
 - For local development, subdomain routing is limited
@@ -126,6 +138,22 @@ npm run build
 # Deploy
 firebase deploy --only hosting
 ```
+
+## Security Best Practices
+
+1. **Environment Variables:**
+   - Use `.env.local` for local development
+   - Never commit `.env` files to version control
+   - Use environment variables in production (Vercel, Netlify, etc.)
+
+2. **API Key Management:**
+   - Regenerate API keys if accidentally exposed
+   - Set up API key restrictions in Google Cloud Console
+   - Monitor usage in your Google Cloud Console
+
+3. **Firebase Security Rules:**
+   - Review and customize Firestore rules for your use case
+   - Test security rules thoroughly before production
 
 ## Need Help?
 
