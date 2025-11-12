@@ -1,6 +1,6 @@
 import React from 'react';
 import { LandingPage } from '@/lib/types';
-import { Building, Bed, Bath, Maximize, Phone, Mail, MapPin, FileText, Download } from 'lucide-react';
+import { Building, Bed, Bath, Maximize, Phone, Mail, MapPin, FileText, Download, Star, Award, TrendingUp, Users, CheckCircle, Play } from 'lucide-react';
 
 interface TemplateCProps {
   data: LandingPage;
@@ -20,6 +20,13 @@ export default function TemplateC({ data }: TemplateCProps) {
     );
     window.location.href = `mailto:${property.contactInfo.email}?subject=${subject}&body=${body}`;
   };
+
+  // Professional testimonials
+  const testimonials = [
+    { name: 'Corporate Tenant A', rating: 5, text: 'Professional service, excellent commercial property portfolio.', company: 'Tech Solutions Inc.' },
+    { name: 'Business Owner B', rating: 5, text: 'Helped us find the perfect office space quickly and efficiently.', company: 'Marketing Agency' },
+    { name: 'Investor C', rating: 5, text: 'Solid investment advice and transparent property valuations.', company: 'Investment Group' },
+  ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900" style={{ fontFamily: 'DM Sans, sans-serif' }}>
@@ -61,38 +68,89 @@ export default function TemplateC({ data }: TemplateCProps) {
         </div>
       </header>
 
-      {/* Hero - Minimal */}
-      <section className="bg-gray-50 py-20 border-b border-gray-200">
+      {/* Hero - Enhanced Minimal */}
+      <section className="bg-gradient-to-br from-gray-50 to-white py-24 md:py-32 border-b border-gray-200">
         <div className="container mx-auto px-6">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <div className="max-w-4xl">
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 mb-6" style={{ borderColor: branding.primaryColor }}>
+              <Award className="h-4 w-4" style={{ color: branding.primaryColor }} />
+              <span className="text-sm font-bold" style={{ color: branding.primaryColor }}>Certified Professional Agent</span>
+            </div>
+
+            <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               {pageTitle}
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              {agentInfo.name} - Professional Commercial Property Solutions
+            <p className="text-2xl md:text-3xl text-gray-700 mb-6 font-semibold">
+              {agentInfo.name}
             </p>
-            <div className="flex items-center gap-6 text-sm text-gray-700">
-              <div className="flex items-center gap-2">
-                <Building className="h-5 w-5" style={{ color: branding.primaryColor }} />
-                <span className="font-medium">{properties.length} Properties</span>
+            <p className="text-xl text-gray-600 mb-10 max-w-2xl">
+              Professional Commercial Property Solutions. Expert guidance for your business growth and investment success.
+            </p>
+
+            {/* Enhanced Stats Bar */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building className="h-6 w-6" style={{ color: branding.primaryColor }} />
+                  <span className="text-3xl font-bold text-gray-900">{properties.length}+</span>
+                </div>
+                <p className="text-sm text-gray-600 font-medium">Properties</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-5 w-5" style={{ color: branding.primaryColor }} />
-                <a href={`tel:${agentInfo.phone}`} className="hover:underline">
-                  {agentInfo.phone}
-                </a>
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="h-6 w-6" style={{ color: branding.primaryColor }} />
+                  <span className="text-3xl font-bold text-gray-900">200+</span>
+                </div>
+                <p className="text-sm text-gray-600 font-medium">Clients Served</p>
               </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-6 w-6" style={{ color: branding.primaryColor }} />
+                  <span className="text-3xl font-bold text-gray-900">12+</span>
+                </div>
+                <p className="text-sm text-gray-600 font-medium">Years</p>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="h-6 w-6 fill-current" style={{ color: branding.primaryColor }} />
+                  <span className="text-3xl font-bold text-gray-900">4.9</span>
+                </div>
+                <p className="text-sm text-gray-600 font-medium">Rating</p>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <a
+                href="#properties"
+                className="px-8 py-4 rounded-xl font-bold text-white transition-all hover:shadow-xl transform hover:scale-105 text-lg"
+                style={{ backgroundColor: branding.primaryColor }}
+              >
+                Browse Properties
+              </a>
+              <a
+                href={`tel:${agentInfo.phone}`}
+                className="px-8 py-4 rounded-xl border-2 font-bold transition-all hover:bg-gray-50 text-lg flex items-center gap-2"
+                style={{ borderColor: branding.primaryColor, color: branding.primaryColor }}
+              >
+                <Phone className="h-5 w-5" />
+                {agentInfo.phone}
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Property Showcase - List View */}
-      <section className="py-16">
+      <section id="properties" className="py-20">
         <div className="container mx-auto px-6">
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Available Properties</h2>
-            <div className="w-20 h-1" style={{ backgroundColor: branding.primaryColor }}></div>
+          <div className="mb-16 text-center">
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">Available Properties</h2>
+            <div className="w-24 h-1 mx-auto mb-4" style={{ backgroundColor: branding.primaryColor }}></div>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Strategic locations. Competitive pricing. Professional service.
+            </p>
           </div>
 
           <div className="space-y-6">
@@ -204,6 +262,75 @@ export default function TemplateC({ data }: TemplateCProps) {
         </div>
       </section>
 
+      {/* Testimonials Section - NEW */}
+      <section className="py-20 bg-white border-y border-gray-200">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 mb-4">
+              <Star className="h-4 w-4 fill-current" style={{ color: branding.primaryColor }} />
+              <span className="text-sm font-bold text-gray-900">Client Testimonials</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Proven Track Record
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              What our business clients say about working with us
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-gray-300 transition-all hover:shadow-lg"
+              >
+                {/* Star Rating */}
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 fill-current" style={{ color: branding.primaryColor }} />
+                  ))}
+                </div>
+
+                {/* Testimonial Text */}
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  "{testimonial.text}"
+                </p>
+
+                {/* Client Info */}
+                <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+                  <div
+                    className="w-12 h-12 rounded flex items-center justify-center text-white font-bold"
+                    style={{ backgroundColor: branding.primaryColor }}
+                  >
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900">{testimonial.name}</p>
+                    <p className="text-sm text-gray-600">{testimonial.company}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Professional Badges */}
+          <div className="mt-16 flex items-center justify-center gap-12 flex-wrap">
+            <div className="text-center">
+              <CheckCircle className="h-10 w-10 mx-auto mb-2" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold text-gray-900">Verified Listings</p>
+            </div>
+            <div className="text-center">
+              <Award className="h-10 w-10 mx-auto mb-2" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold text-gray-900">Industry Certified</p>
+            </div>
+            <div className="text-center">
+              <TrendingUp className="h-10 w-10 mx-auto mb-2" style={{ color: branding.primaryColor }} />
+              <p className="text-sm font-semibold text-gray-900">Market Leader</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Location Map Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-6">
@@ -251,99 +378,96 @@ export default function TemplateC({ data }: TemplateCProps) {
         </div>
       </section>
 
-      {/* Contact Form */}
-      <section id="contact" className="py-16 bg-gray-50">
+      {/* Contact Form - Optimized */}
+      <section id="contact" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto">
-            <div className="mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Get in Touch</h2>
-              <div className="w-20 h-1" style={{ backgroundColor: branding.primaryColor }}></div>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Let's Discuss Your Needs</h2>
+              <div className="w-24 h-1 mx-auto mb-4" style={{ backgroundColor: branding.primaryColor }}></div>
+              <p className="text-xl text-gray-600">
+                Professional consultation. Quick response. No obligations.
+              </p>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg p-8">
+            <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-10">
+              {/* Simplified Professional Form */}
               <form className="space-y-6" id="contact-form">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Name
+                    <label htmlFor="name" className="block text-sm font-bold text-gray-900 mb-3">
+                      Full Name *
                     </label>
                     <input
                       type="text"
                       id="name"
                       name="name"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:border-transparent"
+                      className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:border-transparent transition-all text-lg bg-white"
                       placeholder="Your name"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone
+                    <label htmlFor="phone" className="block text-sm font-bold text-gray-900 mb-3">
+                      Phone Number *
                     </label>
                     <input
                       type="tel"
                       id="phone"
                       name="phone"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:border-transparent"
-                      placeholder="+60123456789"
+                      className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:border-transparent transition-all text-lg bg-white"
+                      placeholder="+60 12-345 6789"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
+                  <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-3">
+                    Email Address *
                   </label>
                   <input
                     type="email"
                     id="email"
                     name="email"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:border-transparent"
+                    className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:border-transparent transition-all text-lg bg-white"
                     placeholder="your@email.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="property-interest" className="block text-sm font-medium text-gray-700 mb-2">
-                    Property Interest
+                  <label htmlFor="property-interest" className="block text-sm font-bold text-gray-900 mb-3">
+                    Property Interest (Optional)
                   </label>
                   <select
                     id="property-interest"
                     name="propertyInterest"
-                    className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:border-transparent"
+                    className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:border-transparent transition-all text-lg bg-white"
                   >
-                    <option value="">Select a property</option>
+                    <option value="">Select a property or leave blank</option>
                     {properties.map((property) => (
                       <option key={property.id} value={property.id}>
-                        {property.title} - {formatPrice(property.price)}
+                        {property.title}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:border-transparent"
-                    placeholder="Your requirements..."
-                  ></textarea>
-                </div>
-
                 <button
                   type="submit"
-                  className="w-full py-4 px-6 rounded font-bold text-lg text-white transition hover:opacity-90"
+                  className="w-full py-5 px-6 rounded-xl font-bold text-xl text-white transition-all hover:shadow-2xl transform hover:scale-[1.02] flex items-center justify-center gap-2"
                   style={{ backgroundColor: branding.primaryColor }}
                 >
-                  Submit Inquiry
+                  <Mail className="h-5 w-5" />
+                  Request Information
                 </button>
+
+                <p className="text-sm text-center text-gray-600 mt-4 flex items-center justify-center gap-2">
+                  <CheckCircle className="h-4 w-4" style={{ color: branding.primaryColor }} />
+                  Response within 24 business hours guaranteed
+                </p>
               </form>
             </div>
           </div>
