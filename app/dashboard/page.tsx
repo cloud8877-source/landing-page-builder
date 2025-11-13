@@ -45,13 +45,31 @@ export default function DashboardPage() {
     if (!user) return;
 
     try {
-      // Fetch from both 'sites' and 'landingPages' collections
-      const [sitesQuery, landingPagesQuery] = await Promise.all([
+      // Fetch from all collections: 'pages', 'sites', and 'landingPages'
+      const [pagesQuery, sitesQuery, landingPagesQuery] = await Promise.all([
+        getDocs(query(collection(db, 'pages'), where('userId', '==', user.id))),
         getDocs(query(collection(db, 'sites'), where('userId', '==', user.id))),
         getDocs(query(collection(db, 'landingPages'), where('userId', '==', user.id))),
       ]);
 
       const sitesData: Site[] = [];
+
+      // Add PropertyPage MY pages
+      pagesQuery.forEach((doc) => {
+        const data = doc.data();
+        sitesData.push({
+          id: doc.id,
+          userId: data.userId,
+          title: data.title || 'Untitled',
+          subdomain: data.slug || '',
+          template: data.pageType || 'property-listing',
+          published: data.status === 'published',
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          // Include new fields
+          ...data,
+        } as Site);
+      });
 
       // Add old sites
       sitesQuery.forEach((doc) => {
@@ -63,7 +81,7 @@ export default function DashboardPage() {
         } as Site);
       });
 
-      // Add new landing pages
+      // Add landing pages
       landingPagesQuery.forEach((doc) => {
         const data = doc.data();
         sitesData.push({
@@ -75,7 +93,6 @@ export default function DashboardPage() {
           published: data.published || false,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
-          // Include new fields for compatibility
           ...data,
         } as Site);
       });
@@ -95,9 +112,9 @@ export default function DashboardPage() {
     if (!confirm('Are you sure you want to delete this site?')) return;
 
     try {
-      // Try deleting from both collections
-      // One will succeed, one will fail silently
+      // Try deleting from all possible collections
       await Promise.allSettled([
+        deleteDoc(doc(db, 'pages', siteId)),
         deleteDoc(doc(db, 'sites', siteId)),
         deleteDoc(doc(db, 'landingPages', siteId)),
       ]);
@@ -167,10 +184,10 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Link href="/builder/new">
+              <Link href="/builder/create">
                 <Button size="sm" className="hidden sm:flex">
                   <Plus className="mr-2 h-4 w-4" />
-                  New Site
+                  Create Landing Page
                 </Button>
               </Link>
 
@@ -193,13 +210,17 @@ export default function DashboardPage() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/settings">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile Settings
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/settings">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
@@ -265,8 +286,8 @@ export default function DashboardPage() {
           {/* Sites Section */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Your Sites</h2>
-              <Link href="/builder/new">
+              <h2 className="text-xl font-semibold">Your Landing Pages</h2>
+              <Link href="/builder/create">
                 <Button size="sm" className="sm:hidden">
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -280,14 +301,14 @@ export default function DashboardPage() {
             ) : sites.length === 0 ? (
               <Card className="p-12 text-center">
                 <Globe className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No sites yet</h3>
+                <h3 className="text-lg font-semibold mb-2">No landing pages yet</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Get started by creating your first property landing page. Choose from beautiful templates designed for Malaysian properties.
+                  Get started by creating your first property landing page. Use our simple wizard to create professional pages in minutes!
                 </p>
-                <Link href="/builder/new">
+                <Link href="/builder/create">
                   <Button size="lg">
                     <Plus className="mr-2 h-5 w-5" />
-                    Create Your First Site
+                    Create Your First Landing Page
                   </Button>
                 </Link>
               </Card>

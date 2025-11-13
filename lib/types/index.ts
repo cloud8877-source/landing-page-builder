@@ -1,4 +1,4 @@
-// User data structure
+// User data structure (Agent Profile for PropertyPage MY)
 export interface User {
   id: string;
   email: string;
@@ -8,6 +8,22 @@ export interface User {
   createdAt: Date;
   subscription: 'free' | 'pro' | 'enterprise';
   plan?: 'free' | 'pro' | 'enterprise'; // For backward compatibility
+
+  // PropertyPage MY - Agent specific fields
+  agentName?: string;
+  phone?: string; // WhatsApp number
+  license?: string; // REA license number
+  yearsExperience?: number;
+  serviceAreas?: string[];
+  brandColors?: {
+    primary: string; // Default: #1e3a8a (navy)
+    accent: string;  // Default: #d97706 (gold/amber)
+  };
+  socialMedia?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+  };
 }
 
 // Agent contact information
@@ -135,4 +151,92 @@ export interface Translation {
   en: string;
   ms: string;
   zh: string;
+}
+
+// PropertyPage MY - New Page Types
+export type PageType =
+  | 'property-listing'
+  | 'buyer-lead-gen'
+  | 'seller-lead-gen'
+  | 'free-valuation'
+  | 'agent-profile';
+
+// PropertyPage structure for PropertyPage MY
+export interface PropertyPage {
+  id: string;
+  userId: string;
+  pageType: PageType;
+  slug: string; // Unique URL slug (agent-name-property-name-randomid)
+  title: string;
+  status: 'draft' | 'published';
+  data: PropertyListingData | BuyerLeadGenData | SellerLeadGenData | FreeValuationData | AgentProfileData;
+  htmlContent: string; // Final generated HTML
+  imageURLs: string[]; // Uploaded images from Firebase Storage
+  createdAt: Date;
+  updatedAt: Date;
+  views: number;
+}
+
+// Property Listing Form Data
+export interface PropertyListingData {
+  propertyName: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  sqft: number;
+  location: string;
+  description: string;
+  features: string[]; // 6 features
+  amenities: string[]; // 3 nearby amenities
+  images: File[]; // 6 images to upload
+}
+
+// Buyer Lead Gen Form Data
+export interface BuyerLeadGenData {
+  headline: string;
+  serviceAreas: string[];
+  featuredProperties?: Array<{
+    name: string;
+    price: number;
+    location: string;
+  }>;
+  leadFormFields: Array<'name' | 'email' | 'phone' | 'budget' | 'propertyType'>;
+}
+
+// Seller Lead Gen Form Data
+export interface SellerLeadGenData {
+  headline: string;
+  recentSalesStats: {
+    propertiesSold: number;
+    averageDaysToSell: number;
+  };
+  sellingProcessSteps: string[]; // 3-5 steps
+  testimonials: Array<{
+    name: string;
+    quote: string;
+  }>;
+}
+
+// Free Valuation Form Data
+export interface FreeValuationData {
+  headline: string;
+  valuationProcessSteps: string[]; // 3 steps
+  turnaroundTime: string;
+}
+
+// Agent Profile Form Data
+export interface AgentProfileData {
+  bio: string;
+  specializations: string[]; // 3 specializations
+  recentlySoldProperties: Array<{
+    name: string;
+    price: number;
+    location: string;
+  }>;
+  testimonials: Array<{
+    name: string;
+    quote: string;
+    title?: string;
+  }>;
+  serviceAreas: string[];
 }
