@@ -42,6 +42,20 @@ service cloud.firestore {
       allow update, delete: if isOwner(resource.data.userId) && hasValidAppCheck();
     }
 
+    // PropertyPage MY - Pages collection
+    match /pages/{pageId} {
+      // Anyone can read published pages (for public viewing at /p/:slug)
+      allow read: if resource.data.status == 'published' || isOwner(resource.data.userId);
+
+      // Only authenticated owners can create their own pages
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      hasValidAppCheck();
+
+      // Only owners can update/delete their pages
+      allow update, delete: if isOwner(resource.data.userId) && hasValidAppCheck();
+    }
+
     // Legacy sites collection (for backward compatibility)
     match /sites/{siteId} {
       allow read: if resource.data.published == true || isOwner(resource.data.userId);
