@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { enableDemoMode } from '@/lib/demo-mode';
+import { useState } from 'react';
 
 export default function HomePage() {
   const router = useRouter();
+  const [activePricing, setActivePricing] = useState<'monthly' | 'yearly'>('monthly');
 
-  const handleTryDemo = () => {
-    enableDemoMode();
-    router.push('/builder/select-template');
+  const handleGetStarted = () => {
+    router.push('/builder/create');
   };
 
   return (
@@ -20,17 +20,23 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="flex flex-col gap-6 text-center lg:text-left">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-heading-light dark:text-heading-dark uppercase">
-                Your Professional Property Website in 5 Minutes
+                Create Your Professional Property Website in 5 Minutes
               </h1>
               <h2 className="text-lg md:text-xl font-body text-muted-light dark:text-muted-dark">
-                The #1 website builder for Malaysian property agents. Attract more clients, close more deals.
+                AI-Powered Website Builder for Malaysian Property Agents. No coding required, just results.
               </h2>
-              <div className="flex justify-center lg:justify-start mt-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-4">
                 <button
-                  onClick={handleTryDemo}
-                  className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-12 px-6 btn-brutalist"
+                  onClick={handleGetStarted}
+                  className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-14 px-8 btn-brutalist text-lg font-bold"
                 >
-                  <span className="truncate">Create My Website for Free</span>
+                  <span className="truncate">Start Building Free</span>
+                </button>
+                <button
+                  onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden h-14 px-8 bg-transparent border-2 border-border-light dark:border-border-dark text-heading-light dark:text-heading-dark hover:bg-surface-light dark:hover:bg-surface-dark transition-colors"
+                >
+                  <span className="truncate">See How It Works</span>
                 </button>
               </div>
             </div>
@@ -42,24 +48,24 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="py-20 sm:py-28 bg-surface-light dark:bg-surface-dark border-t border-b border-border-light dark:border-border-dark">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark uppercase">
               Everything You Need to Succeed Online
             </h2>
             <p className="mt-4 text-lg font-body text-muted-light dark:text-muted-dark">
-              PropSite Pro provides powerful features to help you build a stunning, professional website without any coding knowledge.
+              Built specifically for Malaysian property agents with all the features you need to attract clients and close deals.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
               <div className="size-12 mb-4 brutalist-icon">
-                <span className="material-symbols-outlined text-3xl">bolt</span>
+                <span className="material-symbols-outlined text-3xl">magic_button</span>
               </div>
               <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase">
-                Instant Website Creation
+                AI-Powered Content
               </h3>
               <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
-                Go from zero to a fully functional website in minutes. Just fill in your details and you&apos;re live!
+                Let AI generate professional bios, property descriptions, and compelling website copy tailored to you.
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
@@ -67,10 +73,10 @@ export default function HomePage() {
                 <span className="material-symbols-outlined text-3xl">touch_app</span>
               </div>
               <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase">
-                No-Code, Easy to Use
+                No Coding Required
               </h3>
               <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
-                Our intuitive builder is designed for non-technical agents. If you can fill a form, you can build a website.
+                Simple form-based builder. If you can fill in your details, you can build a stunning website.
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
@@ -81,7 +87,18 @@ export default function HomePage() {
                 Mobile Responsive
               </h3>
               <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
-                Your website will look amazing on all devices—desktops, tablets, and smartphones.
+                Your website looks perfect on all devices—desktops, tablets, and smartphones.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
+              <div className="size-12 mb-4 brutalist-icon">
+                <span className="material-symbols-outlined text-3xl">bolt</span>
+              </div>
+              <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase">
+                Instant Publishing
+              </h3>
+              <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
+                Go live in minutes with a free subdomain or connect your own custom domain.
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
@@ -92,89 +109,344 @@ export default function HomePage() {
                 Property Listings
               </h3>
               <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
-                Easily add, manage, and showcase your property listings with beautiful galleries and detailed info.
+                Showcase unlimited properties with beautiful galleries, detailed specs, and inquiry forms.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
+              <div className="size-12 mb-4 brutalist-icon">
+                <span className="material-symbols-outlined text-3xl">chat</span>
+              </div>
+              <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase">
+                WhatsApp Integration
+              </h3>
+              <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
+                Direct WhatsApp buttons on every listing so clients can contact you instantly.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
+              <div className="size-12 mb-4 brutalist-icon">
+                <span className="material-symbols-outlined text-3xl">search</span>
+              </div>
+              <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase">
+                SEO Optimized
+              </h3>
+              <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
+                AI-generated SEO content helps your site rank higher on Google and attract more clients.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark shadow-none">
+              <div className="size-12 mb-4 brutalist-icon">
+                <span className="material-symbols-outlined text-3xl">domain</span>
+              </div>
+              <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase">
+                Free Subdomain
+              </h3>
+              <p className="mt-2 text-sm font-body text-muted-light dark:text-muted-dark">
+                Get a professional subdomain like yourname.propsite.my at no cost.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Builder Section */}
-      <section className="py-20 sm:py-28 bg-white dark:bg-black" id="builder">
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 sm:py-28 bg-white dark:bg-black">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col gap-4 text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight text-heading-light dark:text-heading-dark uppercase">
-              Build Your Website Instantly
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark uppercase">
+              How It Works
             </h2>
-            <p className="text-lg font-body text-muted-light dark:text-muted-dark">
-              Follow the steps to create your professional online presence. No technical skills required.
+            <p className="mt-4 text-lg font-body text-muted-light dark:text-muted-dark">
+              Three simple steps to launch your professional property website
             </p>
           </div>
-          <div className="mt-12 max-w-4xl mx-auto">
-            <div className="pb-3 border-b border-border-light dark:border-border-dark">
-              <div className="flex justify-center gap-4 sm:gap-8">
-                <a className="flex flex-col items-center justify-center pb-3 pt-4 px-2 tab-brutalist active" href="#">
-                  <p className="text-sm sm:text-base font-bold tracking-wide">1. Your Details</p>
-                </a>
-                <a className="flex flex-col items-center justify-center pb-3 pt-4 px-2 tab-brutalist" href="#">
-                  <p className="text-sm sm:text-base font-bold tracking-wide">2. Your Listings</p>
-                </a>
-                <a className="flex flex-col items-center justify-center pb-3 pt-4 px-2 tab-brutalist" href="#">
-                  <p className="text-sm sm:text-base font-bold tracking-wide">3. Final Touches</p>
-                </a>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center p-8 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+              <div className="size-16 mb-6 flex items-center justify-center bg-background-light dark:bg-background-dark border-2 border-border-light dark:border-border-dark">
+                <span className="text-3xl font-display font-extrabold text-heading-light dark:text-heading-dark">1</span>
+              </div>
+              <h3 className="text-xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-4">
+                Fill In Your Information
+              </h3>
+              <p className="text-sm font-body text-muted-light dark:text-muted-dark">
+                Enter your details, upload your photo, and let our AI generate professional content for your website. Takes just 2 minutes.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-8 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+              <div className="size-16 mb-6 flex items-center justify-center bg-background-light dark:bg-background-dark border-2 border-border-light dark:border-border-dark">
+                <span className="text-3xl font-display font-extrabold text-heading-light dark:text-heading-dark">2</span>
+              </div>
+              <h3 className="text-xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-4">
+                AI Generates Your Website
+              </h3>
+              <p className="text-sm font-body text-muted-light dark:text-muted-dark">
+                Our AI creates a beautiful, professional website with all your content. Preview and customize colors, layout, and sections.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center p-8 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+              <div className="size-16 mb-6 flex items-center justify-center bg-background-light dark:bg-background-dark border-2 border-border-light dark:border-border-dark">
+                <span className="text-3xl font-display font-extrabold text-heading-light dark:text-heading-dark">3</span>
+              </div>
+              <h3 className="text-xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-4">
+                Publish Instantly
+              </h3>
+              <p className="text-sm font-body text-muted-light dark:text-muted-dark">
+                Click publish and go live immediately. Share your website link, QR code, and start attracting clients right away.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={handleGetStarted}
+              className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden h-14 px-8 btn-brutalist text-lg font-bold"
+            >
+              <span className="truncate">Get Started Now</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 sm:py-28 bg-surface-light dark:bg-surface-dark border-t border-b border-border-light dark:border-border-dark">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark uppercase">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="mt-4 text-lg font-body text-muted-light dark:text-muted-dark">
+              Choose the plan that fits your needs. Start free, upgrade anytime.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Free Plan */}
+            <div className="flex flex-col p-8 bg-background-light dark:bg-background-dark border-2 border-border-light dark:border-border-dark">
+              <h3 className="text-2xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-2">Free</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark">RM 0</span>
+                <span className="text-muted-light dark:text-muted-dark font-body">/forever</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">1 Website</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Free Subdomain (.propsite.my)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Up to 5 Properties</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">AI Content Generation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Mobile Responsive</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">WhatsApp Integration</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Basic Analytics</span>
+                </li>
+              </ul>
+              <button
+                onClick={handleGetStarted}
+                className="w-full h-12 btn-brutalist"
+              >
+                Get Started Free
+              </button>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="flex flex-col p-8 bg-background-light dark:bg-background-dark border-4 border-primary relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-1 text-xs font-bold uppercase">
+                Most Popular
+              </div>
+              <h3 className="text-2xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-2">Pro</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark">RM 29</span>
+                <span className="text-muted-light dark:text-muted-dark font-body">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark font-bold">Everything in Free, plus:</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Custom Domain Support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Unlimited Properties</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Advanced Analytics</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Lead Capture Forms</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Priority Support</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Remove PropSite Branding</span>
+                </li>
+              </ul>
+              <button
+                onClick={handleGetStarted}
+                className="w-full h-12 btn-brutalist"
+              >
+                Start Pro Trial
+              </button>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="flex flex-col p-8 bg-background-light dark:bg-background-dark border-2 border-border-light dark:border-border-dark">
+              <h3 className="text-2xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-2">Premium</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark">RM 79</span>
+                <span className="text-muted-light dark:text-muted-dark font-body">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 flex-grow">
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark font-bold">Everything in Pro, plus:</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Up to 5 Websites</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">White Label Option</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Advanced Customization</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">API Access</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">Dedicated Account Manager</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-green-600 text-xl">check_circle</span>
+                  <span className="text-sm font-body text-body-light dark:text-body-dark">24/7 Priority Support</span>
+                </li>
+              </ul>
+              <button
+                onClick={handleGetStarted}
+                className="w-full h-12 btn-brutalist"
+              >
+                Go Premium
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 sm:py-28 bg-white dark:bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-heading-light dark:text-heading-dark uppercase">
+              Trusted by Malaysian Property Agents
+            </h2>
+            <p className="mt-4 text-lg font-body text-muted-light dark:text-muted-dark">
+              See what property agents are saying about PropSite Pro
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="flex flex-col p-6 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} className="material-symbols-outlined text-yellow-500 text-xl">star</span>
+                ))}
+              </div>
+              <p className="text-sm font-body text-body-light dark:text-body-dark mb-4">
+                "PropSite Pro helped me create a professional website in less than 10 minutes! The AI content generation is amazing. I've already received 3 new inquiries through my site."
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="size-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                  AM
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-heading-light dark:text-heading-dark">Ahmad Musa</p>
+                  <p className="text-xs text-muted-light dark:text-muted-dark">Property Agent, Kuala Lumpur</p>
+                </div>
               </div>
             </div>
-            <div className="pt-10">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 flex flex-col gap-6">
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <label className="flex flex-col">
-                      <p className="text-sm font-body font-medium pb-2 text-heading-light dark:text-heading-dark uppercase">Full Name</p>
-                      <input className="form-input-brutalist flex w-full min-w-0 flex-1 resize-none overflow-hidden h-12 placeholder:text-muted-light dark:placeholder:text-muted-dark p-3 text-base font-normal" placeholder="e.g. Aina Binti Abdullah" />
-                    </label>
-                    <label className="flex flex-col">
-                      <p className="text-sm font-body font-medium pb-2 text-heading-light dark:text-heading-dark uppercase">Agency Name</p>
-                      <input className="form-input-brutalist flex w-full min-w-0 flex-1 resize-none overflow-hidden h-12 placeholder:text-muted-light dark:placeholder:text-muted-dark p-3 text-base font-normal" placeholder="e.g. Hartanah Realty" />
-                    </label>
-                    <label className="flex flex-col">
-                      <p className="text-sm font-body font-medium pb-2 text-heading-light dark:text-heading-dark uppercase">Phone Number</p>
-                      <input className="form-input-brutalist flex w-full min-w-0 flex-1 resize-none overflow-hidden h-12 placeholder:text-muted-light dark:placeholder:text-muted-dark p-3 text-base font-normal" placeholder="e.g. +60 12-345 6789" />
-                    </label>
-                    <label className="flex flex-col">
-                      <p className="text-sm font-body font-medium pb-2 text-heading-light dark:text-heading-dark uppercase">Email Address</p>
-                      <input className="form-input-brutalist flex w-full min-w-0 flex-1 resize-none overflow-hidden h-12 placeholder:text-muted-light dark:placeholder:text-muted-dark p-3 text-base font-normal" placeholder="you@example.com" type="email" />
-                    </label>
-                  </div>
-                  <div>
-                    <label className="flex flex-col">
-                      <p className="text-sm font-body font-medium pb-2 text-heading-light dark:text-heading-dark uppercase">Agent Bio</p>
-                      <textarea className="form-textarea-brutalist flex w-full min-w-0 flex-1 resize-y overflow-hidden min-h-[120px] placeholder:text-muted-light dark:placeholder:text-muted-dark p-3 text-base font-normal" placeholder="Tell your clients a little about yourself..."></textarea>
-                    </label>
-                  </div>
+            <div className="flex flex-col p-6 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} className="material-symbols-outlined text-yellow-500 text-xl">star</span>
+                ))}
+              </div>
+              <p className="text-sm font-body text-body-light dark:text-body-dark mb-4">
+                "As someone with zero tech skills, I was worried about creating a website. PropSite Pro made it so easy! My clients love the professional look and the WhatsApp button."
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="size-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                  SL
                 </div>
-                <div className="flex flex-col gap-4">
-                  <p className="text-sm font-body font-medium text-heading-light dark:text-heading-dark uppercase">Upload Your Headshot</p>
-                  <div className="relative flex flex-col items-center justify-center w-full aspect-square bg-background-light dark:bg-background-dark border-2 border-dashed border-border-light dark:border-border-dark cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center text-muted-light dark:text-muted-dark">
-                      <span className="material-symbols-outlined text-4xl mb-3">cloud_upload</span>
-                      <p className="mb-2 text-sm font-body"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs font-body">PNG, JPG or GIF (MAX. 800x800px)</p>
-                    </div>
-                    <input className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="dropzone-file" type="file" />
-                  </div>
+                <div>
+                  <p className="text-sm font-bold text-heading-light dark:text-heading-dark">Sarah Lim</p>
+                  <p className="text-xs text-muted-light dark:text-muted-dark">Real Estate Negotiator, Penang</p>
                 </div>
               </div>
-              <div className="flex justify-end mt-10">
-                <button
-                  onClick={handleTryDemo}
-                  className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden h-12 px-6 btn-brutalist"
-                >
-                  <span className="truncate">Next: Add Listings</span>
-                  <span className="material-symbols-outlined ml-2 text-lg">arrow_forward_ios</span>
-                </button>
+            </div>
+            <div className="flex flex-col p-6 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} className="material-symbols-outlined text-yellow-500 text-xl">star</span>
+                ))}
+              </div>
+              <p className="text-sm font-body text-body-light dark:text-body-dark mb-4">
+                "The analytics feature helps me track which properties get the most views. The Pro plan is worth every ringgit. Best investment for my property business!"
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="size-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                  RK
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-heading-light dark:text-heading-dark">Raj Kumar</p>
+                  <p className="text-xs text-muted-light dark:text-muted-dark">Property Consultant, Johor Bahru</p>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-20 bg-primary text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-display font-extrabold uppercase mb-4">
+            Ready to Build Your Property Website?
+          </h2>
+          <p className="text-lg mb-8 max-w-2xl mx-auto">
+            Join hundreds of Malaysian property agents who are growing their business online with PropSite Pro.
+          </p>
+          <button
+            onClick={handleGetStarted}
+            className="bg-white text-primary hover:bg-gray-100 transition-colors flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden h-14 px-8 text-lg font-bold mx-auto"
+          >
+            <span className="truncate">Create Your Website Now</span>
+          </button>
         </div>
       </section>
 
@@ -194,15 +466,13 @@ export default function HomePage() {
               </div>
               <p className="text-base font-display font-bold text-heading-light dark:text-heading-dark uppercase">PropSite Pro</p>
             </div>
-            <p className="text-sm font-body text-muted-light dark:text-muted-dark">&copy; 2024 PropSite Pro. All rights reserved.</p>
-            <div className="flex gap-4">
-              <a className="social-icon-brutalist hover:text-primary" href="#"><span className="sr-only">Facebook</span>
-                <svg aria-hidden="true" className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path clipRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fillRule="evenodd"></path></svg>
-              </a>
-              <a className="social-icon-brutalist hover:text-primary" href="#"><span className="sr-only">Instagram</span>
-                <svg aria-hidden="true" className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path clipRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.345 2.525c.636-.247 1.363-.416 2.427-.465C9.795 2.013 10.148 2 12.315 2zm0 1.623c-2.387 0-2.654.01-3.594.052a3.273 3.273 0 00-1.84.658 3.273 3.273 0 00-.658 1.84c-.042.94-.052 1.207-.052 3.594s.01 2.654.052 3.594c.048.838.217 1.483.658 1.84a3.273 3.273 0 001.84.658c.94.042 1.207.052 3.594.052s2.654-.01 3.594-.052a3.273 3.273 0 001.84-.658 3.273 3.273 0 00.658-1.84c.042-.94.052-1.207.052-3.594s-.01-2.654-.052-3.594a3.273 3.273 0 00-.658-1.84 3.273 3.273 0 00-1.84-.658c-.94-.042-1.207-.052-3.594-.052zM12 6.865a5.135 5.135 0 100 10.27 5.135 5.135 0 000-10.27zm0 1.623a3.512 3.512 0 110 7.024 3.512 3.512 0 010-7.024zM16.536 7.42a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z" fillRule="evenodd"></path></svg>
-              </a>
+            <div className="flex flex-wrap gap-6 text-sm">
+              <Link href="/terms" className="hover:underline">Terms of Service</Link>
+              <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+              <Link href="/contact" className="hover:underline">Contact Us</Link>
+              <Link href="/help" className="hover:underline">Help Center</Link>
             </div>
+            <p className="text-sm font-body text-muted-light dark:text-muted-dark">&copy; 2024 PropSite Pro. All rights reserved.</p>
           </div>
         </div>
       </footer>
