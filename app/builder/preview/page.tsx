@@ -2,180 +2,54 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { LandingPageFormData, LandingPage } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Download, Eye, Globe, Monitor, Smartphone, Tablet, Sparkles, LogIn } from 'lucide-react';
-import { isDemoMode, getDemoUser, saveDemoData, disableDemoMode } from '@/lib/demo-mode';
-import TemplateA from '@/lib/templates/template-a';
-import TemplateB from '@/lib/templates/template-b';
-import TemplateC from '@/lib/templates/template-c';
+import { useBuilderStore } from '@/lib/store/builder-store';
+import { toast } from 'sonner';
+import ContentEditable from 'react-contenteditable';
+
+type ViewMode = 'desktop' | 'tablet' | 'mobile';
 
 export default function PreviewPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [formData, setFormData] = useState<LandingPageFormData | null>(null);
-  const [publishing, setPublishing] = useState(false);
-  const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const { agentInfo, properties, siteDesign, generatedContent, updateDesign } = useBuilderStore();
 
-  // Check demo mode
-  const isDemo = isDemoMode();
-  const effectiveUser = isDemo ? getDemoUser() : user;
+  const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+  const [editableContent, setEditableContent] = useState(generatedContent);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user && !isDemo) {
-      router.push('/login');
-      return;
-    }
-
-    // Load form data from sessionStorage
-    const savedData = sessionStorage.getItem('landingPageData');
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        setFormData(data);
-        // If in demo mode, also save to localStorage
-        if (isDemo) {
-          saveDemoData(data);
-        }
-      } catch (error) {
-        console.error('Error parsing form data:', error);
-        router.push('/builder/select-template');
-      }
+    if (!generatedContent) {
+      toast.error('No content generated yet');
+      router.push('/builder/create');
     } else {
-      router.push('/builder/select-template');
+      setEditableContent(generatedContent);
     }
-  }, [loading, user, isDemo, router]);
+  }, [generatedContent, router]);
 
-  const handlePublish = async () => {
-    if (!formData) return;
+  const handleContentChange = (section: string, field: string, value: string) => {
+    if (!editableContent) return;
 
-    // If demo mode, show signup prompt
-    if (isDemo) {
-      setShowSignupPrompt(true);
-      return;
-    }
-
-    // Regular publish flow for authenticated users
-    if (!user) return;
-
-    setPublishing(true);
-
-    try {
-      // Create landing page document
-      const landingPageData: Partial<LandingPage> = {
-        userId: user.id,
-        templateId: formData.templateId,
-        pageTitle: formData.pageTitle,
-        agentInfo: formData.agentInfo,
-        branding: formData.branding,
-        properties: formData.properties,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        published: true,
-      };
-
-      // Add to Firestore
-      const docRef = await addDoc(collection(db, 'landingPages'), {
-        ...landingPageData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
-      // Generate published URL
-      const publishedUrl = `${window.location.origin}/page/${docRef.id}`;
-
-      // Show success message
-      alert(`Landing page published successfully!\nURL: ${publishedUrl}`);
-
-      // Clear sessionStorage
-      sessionStorage.removeItem('landingPageData');
-
-      // Redirect to dashboard
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Error publishing landing page:', error);
-      alert('Error publishing landing page. Please try again.');
-    } finally {
-      setPublishing(false);
-    }
+    setEditableContent({
+      ...editableContent,
+      [section]: {
+        ...editableContent[section as keyof typeof editableContent],
+        [field]: value
+      }
+    } as any);
   };
 
-  const handleDownloadHTML = () => {
-    if (!formData) return;
-
-    // Generate HTML (simplified version)
-    const html = generateStaticHTML(formData);
-
-    // Create blob and download
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${formData.pageTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleColorChange = (color: string) => {
+    updateDesign({ primaryColor: color });
   };
 
-  const generateStaticHTML = (data: LandingPageFormData): string => {
-    // This is a simplified version
-    // In production, you'd want to use a proper HTML generator
-    return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${data.pageTitle}</title>
-  <meta name="description" content="${data.agentInfo.name} - Property Agent">
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <h1>Landing Page: ${data.pageTitle}</h1>
-  <p>Agent: ${data.agentInfo.name}</p>
-  <p>Properties: ${data.properties.length}</p>
-  <!-- Full template rendering would go here -->
-</body>
-</html>
-    `.trim();
+  const handleAddProperties = () => {
+    router.push('/builder/preview?tab=properties');
   };
 
-  if ((loading && !isDemo) || !formData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading preview...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Convert formData to LandingPage format for template rendering
-  const landingPageData: LandingPage = {
-    id: 'preview',
-    userId: effectiveUser?.id || '',
-    templateId: formData.templateId,
-    pageTitle: formData.pageTitle,
-    agentInfo: formData.agentInfo,
-    branding: formData.branding,
-    properties: formData.properties,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+  const handlePublish = () => {
+    // Save the edited content
+    useBuilderStore.getState().setGeneratedContent(editableContent);
+    router.push('/builder/publish');
   };
-
-  // Select template component
-  const TemplateComponent =
-    formData.templateId === 'template-a'
-      ? TemplateA
-      : formData.templateId === 'template-b'
-      ? TemplateB
-      : TemplateC;
 
   const viewportWidths = {
     desktop: '100%',
@@ -183,145 +57,521 @@ export default function PreviewPage() {
     mobile: '375px',
   };
 
+  if (!editableContent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading preview...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Demo Mode Banner */}
-      {isDemo && (
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3">
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-sm font-medium">
-              🎨 <strong>Demo Mode</strong> - Sign up free to publish and get your live URL!
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Signup Prompt Modal */}
-      {showSignupPrompt && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
-          <Card className="max-w-md w-full p-8 relative">
-            <button
-              onClick={() => setShowSignupPrompt(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-8 w-8 text-white" />
-              </div>
-
-              <h2 className="text-2xl font-bold mb-2">Love What You Built?</h2>
-              <p className="text-gray-600 mb-6">
-                Sign up free to publish your landing page and get a live URL to share with clients!
-              </p>
-
-              <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-left">
-                  <p className="font-semibold text-blue-900 mb-2">✅ Your work is saved!</p>
-                  <p className="text-blue-700">
-                    After signing up, we'll restore your landing page so you can publish it immediately.
-                  </p>
-                </div>
-
-                <Link href="/login">
-                  <Button className="w-full" size="lg">
-                    <LogIn className="mr-2 h-5 w-5" />
-                    Sign Up Free - Publish Your Page
-                  </Button>
-                </Link>
-
-                <p className="text-xs text-gray-500">
-                  No credit card required • Takes 30 seconds
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-
+    <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col">
       {/* Header */}
-      <header className="bg-card border-b sticky top-0 z-50">
+      <header className="bg-white dark:bg-black border-b border-border-light dark:border-border-dark sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push('/builder/customize?template=' + formData.templateId)}
+              <button
+                onClick={() => router.push('/builder/create')}
+                className="flex items-center gap-2 px-4 py-2 hover:bg-surface-light dark:hover:bg-surface-dark transition-colors"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
+                <span className="material-symbols-outlined">arrow_back</span>
+                Edit Info
+              </button>
               <div>
-                <h1 className="text-xl font-bold">Preview & Publish</h1>
-                <p className="text-sm text-muted-foreground">Step 3 of 3</p>
+                <h1 className="text-xl font-display font-bold text-heading-light dark:text-heading-dark uppercase">
+                  Preview & Customize
+                </h1>
+                <p className="text-sm text-muted-light dark:text-muted-dark">
+                  Click any text to edit • Change colors below
+                </p>
               </div>
             </div>
 
             {/* View Mode Switcher */}
-            <div className="flex items-center gap-2 bg-accent rounded-lg p-1">
-              <Button
-                variant={viewMode === 'desktop' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('desktop')}
-              >
-                <Monitor className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'tablet' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('tablet')}
-              >
-                <Tablet className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('mobile')}
-              >
-                <Smartphone className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center gap-2 bg-surface-light dark:bg-surface-dark p-1 rounded">
+              {(['desktop', 'tablet', 'mobile'] as ViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    viewMode === mode
+                      ? 'bg-primary text-white'
+                      : 'hover:bg-background-light dark:hover:bg-background-dark'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-xl">
+                    {mode === 'desktop' ? 'desktop_windows' : mode === 'tablet' ? 'tablet' : 'smartphone'}
+                  </span>
+                </button>
+              ))}
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={handleDownloadHTML}>
-                <Download className="h-4 w-4 mr-2" />
-                Download HTML
-              </Button>
-              <Button onClick={handlePublish} disabled={publishing} size="lg">
-                <Globe className="h-4 w-4 mr-2" />
-                {publishing ? 'Publishing...' : 'Publish Landing Page'}
-              </Button>
+              {properties.length === 0 && (
+                <button
+                  onClick={handleAddProperties}
+                  className="px-6 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                >
+                  Add Properties
+                </button>
+              )}
+              <button
+                onClick={handlePublish}
+                className="px-6 py-3 btn-brutalist"
+              >
+                <span className="flex items-center gap-2">
+                  Continue to Publish
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </span>
+              </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Preview Frame */}
-      <main className="flex-1 bg-gray-100 p-4 overflow-auto">
-        <div className="mx-auto transition-all duration-300" style={{ maxWidth: viewportWidths[viewMode] }}>
-          <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
-            <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 flex items-center gap-2">
-              <Eye className="h-4 w-4 text-yellow-700" />
-              <span className="text-sm font-medium text-yellow-700">Preview Mode</span>
+      {/* Main Content */}
+      <div className="flex-1 flex">
+        {/* Preview Canvas */}
+        <div className="flex-1 bg-gray-100 dark:bg-gray-900 p-6 overflow-auto">
+          <div
+            className="mx-auto transition-all duration-300 bg-white dark:bg-black shadow-2xl"
+            style={{ maxWidth: viewportWidths[viewMode] }}
+          >
+            {/* Preview Bar */}
+            <div className="bg-yellow-100 dark:bg-yellow-900 border-b border-yellow-200 dark:border-yellow-800 px-4 py-2 flex items-center gap-2">
+              <span className="material-symbols-outlined text-yellow-700 dark:text-yellow-300">visibility</span>
+              <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">
+                Preview Mode - Click text to edit
+              </span>
             </div>
 
-            {/* Template Rendering */}
+            {/* Website Content */}
             <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-              <TemplateComponent data={landingPageData} />
+              {/* Hero Section */}
+              <section
+                className="py-20 sm:py-28 px-4"
+                style={{ backgroundColor: siteDesign.primaryColor, color: 'white' }}
+              >
+                <div className="container mx-auto max-w-4xl text-center">
+                  <div className="mb-6">
+                    {agentInfo.profilePhoto && (
+                      <img
+                        src={agentInfo.profilePhoto}
+                        alt={agentInfo.fullName}
+                        className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white shadow-lg object-cover"
+                      />
+                    )}
+                  </div>
+
+                  <ContentEditable
+                    html={editableContent.hero.headline}
+                    onChange={(e) => handleContentChange('hero', 'headline', e.target.value)}
+                    tagName="h1"
+                    className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold mb-4 outline-none focus:ring-2 focus:ring-white/50 rounded px-2"
+                  />
+
+                  <ContentEditable
+                    html={editableContent.hero.subheadline}
+                    onChange={(e) => handleContentChange('hero', 'subheadline', e.target.value)}
+                    tagName="p"
+                    className="text-lg md:text-xl mb-8 outline-none focus:ring-2 focus:ring-white/50 rounded px-2"
+                  />
+
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a
+                      href={`https://wa.me/${agentInfo.whatsapp?.replace(/[^0-9]/g, '')}`}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-900 font-bold rounded hover:bg-gray-100 transition-colors"
+                    >
+                      <span className="material-symbols-outlined">chat</span>
+                      {editableContent.hero.ctaText}
+                    </a>
+                    <a
+                      href={`tel:${agentInfo.phoneNumber}`}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded hover:bg-white/10 transition-colors"
+                    >
+                      <span className="material-symbols-outlined">call</span>
+                      Call Now
+                    </a>
+                  </div>
+                </div>
+              </section>
+
+              {/* About Section */}
+              <section className="py-20 bg-white dark:bg-black">
+                <div className="container mx-auto px-4 max-w-6xl">
+                  <div className="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                      <h2 className="text-3xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-6">
+                        About {agentInfo.fullName}
+                      </h2>
+
+                      <ContentEditable
+                        html={editableContent.about.bio}
+                        onChange={(e) => handleContentChange('about', 'bio', e.target.value)}
+                        tagName="p"
+                        className="text-body-light dark:text-body-dark mb-6 outline-none focus:ring-2 focus:ring-primary rounded p-2"
+                      />
+
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-surface-light dark:bg-surface-dark p-4 rounded">
+                          <div className="text-3xl font-bold text-primary mb-1">
+                            {agentInfo.yearsOfExperience}+
+                          </div>
+                          <div className="text-sm text-muted-light dark:text-muted-dark">
+                            Years Experience
+                          </div>
+                        </div>
+                        <div className="bg-surface-light dark:bg-surface-dark p-4 rounded">
+                          <div className="text-3xl font-bold text-primary mb-1">
+                            {agentInfo.areasOfCoverage.length}+
+                          </div>
+                          <div className="text-sm text-muted-light dark:text-muted-dark">
+                            Coverage Areas
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="material-symbols-outlined text-primary">verified</span>
+                          <span>REN/REA: {agentInfo.renNumber}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="material-symbols-outlined text-primary">business</span>
+                          <span>{agentInfo.agencyName}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="material-symbols-outlined text-primary">language</span>
+                          <span>{agentInfo.languages.join(', ')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold text-heading-light dark:text-heading-dark uppercase mb-4">
+                        Key Achievements
+                      </h3>
+                      <ul className="space-y-3">
+                        {editableContent.about.achievements.map((achievement, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">check_circle</span>
+                            <ContentEditable
+                              html={achievement}
+                              onChange={(e) => {
+                                const newAchievements = [...editableContent.about.achievements];
+                                newAchievements[index] = e.target.value;
+                                setEditableContent({
+                                  ...editableContent,
+                                  about: { ...editableContent.about, achievements: newAchievements }
+                                });
+                              }}
+                              tagName="span"
+                              className="outline-none focus:ring-2 focus:ring-primary rounded px-1"
+                            />
+                          </li>
+                        ))}
+                      </ul>
+
+                      <h3 className="text-xl font-bold text-heading-light dark:text-heading-dark uppercase mt-8 mb-4">
+                        Why Choose Me
+                      </h3>
+                      <ul className="space-y-3">
+                        {editableContent.about.whyChooseMe.map((reason, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">star</span>
+                            <ContentEditable
+                              html={reason}
+                              onChange={(e) => {
+                                const newReasons = [...editableContent.about.whyChooseMe];
+                                newReasons[index] = e.target.value;
+                                setEditableContent({
+                                  ...editableContent,
+                                  about: { ...editableContent.about, whyChooseMe: newReasons }
+                                });
+                              }}
+                              tagName="span"
+                              className="outline-none focus:ring-2 focus:ring-primary rounded px-1"
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Services Section */}
+              <section className="py-20 bg-surface-light dark:bg-surface-dark">
+                <div className="container mx-auto px-4 max-w-6xl">
+                  <h2 className="text-3xl font-display font-bold text-heading-light dark:text-heading-dark uppercase text-center mb-12">
+                    My Services
+                  </h2>
+
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {editableContent.services.map((service, index) => (
+                      <div
+                        key={index}
+                        className="bg-white dark:bg-black p-6 border border-border-light dark:border-border-dark hover:border-primary transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-4xl text-primary mb-4 block">
+                          {service.icon}
+                        </span>
+                        <ContentEditable
+                          html={service.title}
+                          onChange={(e) => {
+                            const newServices = [...editableContent.services];
+                            newServices[index] = { ...service, title: e.target.value };
+                            setEditableContent({ ...editableContent, services: newServices });
+                          }}
+                          tagName="h3"
+                          className="text-lg font-bold text-heading-light dark:text-heading-dark mb-2 outline-none focus:ring-2 focus:ring-primary rounded px-1"
+                        />
+                        <ContentEditable
+                          html={service.description}
+                          onChange={(e) => {
+                            const newServices = [...editableContent.services];
+                            newServices[index] = { ...service, description: e.target.value };
+                            setEditableContent({ ...editableContent, services: newServices });
+                          }}
+                          tagName="p"
+                          className="text-sm text-body-light dark:text-body-dark outline-none focus:ring-2 focus:ring-primary rounded px-1"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Properties Section */}
+              {properties.length > 0 && (
+                <section className="py-20 bg-white dark:bg-black">
+                  <div className="container mx-auto px-4 max-w-6xl">
+                    <h2 className="text-3xl font-display font-bold text-heading-light dark:text-heading-dark uppercase text-center mb-12">
+                      Featured Properties
+                    </h2>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {properties.map((property) => (
+                        <div
+                          key={property.id}
+                          className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          {property.images[0] && (
+                            <img
+                              src={property.images[0]}
+                              alt={property.title}
+                              className="w-full h-48 object-cover"
+                            />
+                          )}
+                          <div className="p-4">
+                            <h3 className="text-lg font-bold text-heading-light dark:text-heading-dark mb-2">
+                              {property.title}
+                            </h3>
+                            <div className="text-2xl font-bold text-primary mb-3">
+                              RM {property.price.toLocaleString()}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-light dark:text-muted-dark mb-3">
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-base">bed</span>
+                                {property.bedrooms}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-base">bathtub</span>
+                                {property.bathrooms}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <span className="material-symbols-outlined text-base">square_foot</span>
+                                {property.sqft}
+                              </span>
+                            </div>
+                            <p className="text-sm text-body-light dark:text-body-dark mb-4 line-clamp-2">
+                              {property.description}
+                            </p>
+                            <a
+                              href={`https://wa.me/${agentInfo.whatsapp?.replace(/[^0-9]/g, '')}?text=I'm interested in ${property.title}`}
+                              className="inline-flex items-center gap-2 text-primary hover:underline"
+                            >
+                              <span className="material-symbols-outlined">chat</span>
+                              Inquire via WhatsApp
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Testimonials Section */}
+              <section className="py-20 bg-surface-light dark:bg-surface-dark">
+                <div className="container mx-auto px-4 max-w-6xl">
+                  <h2 className="text-3xl font-display font-bold text-heading-light dark:text-heading-dark uppercase text-center mb-12">
+                    Client Testimonials
+                  </h2>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {editableContent.testimonials.map((testimonial, index) => (
+                      <div
+                        key={index}
+                        className="bg-white dark:bg-black p-6 border border-border-light dark:border-border-dark"
+                      >
+                        <div className="flex gap-1 mb-4">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <span key={i} className="material-symbols-outlined text-yellow-500">star</span>
+                          ))}
+                        </div>
+                        <ContentEditable
+                          html={testimonial.text}
+                          onChange={(e) => {
+                            const newTestimonials = [...editableContent.testimonials];
+                            newTestimonials[index] = { ...testimonial, text: e.target.value };
+                            setEditableContent({ ...editableContent, testimonials: newTestimonials });
+                          }}
+                          tagName="p"
+                          className="text-sm text-body-light dark:text-body-dark mb-4 outline-none focus:ring-2 focus:ring-primary rounded px-1"
+                        />
+                        <div className="font-bold text-heading-light dark:text-heading-dark">
+                          {testimonial.name}
+                        </div>
+                        <div className="text-sm text-muted-light dark:text-muted-dark">
+                          {testimonial.propertyType}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Contact Section */}
+              <section className="py-20 bg-white dark:bg-black">
+                <div className="container mx-auto px-4 max-w-4xl text-center">
+                  <h2 className="text-3xl font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-6">
+                    Get In Touch
+                  </h2>
+                  <p className="text-lg text-body-light dark:text-body-dark mb-8">
+                    Ready to find your dream property? Contact me today!
+                  </p>
+
+                  <div className="grid sm:grid-cols-3 gap-6 mb-8">
+                    <a
+                      href={`tel:${agentInfo.phoneNumber}`}
+                      className="flex flex-col items-center gap-3 p-6 bg-surface-light dark:bg-surface-dark rounded hover:bg-primary hover:text-white transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-4xl text-primary group-hover:text-white">call</span>
+                      <div className="text-sm font-medium">Call Me</div>
+                      <div className="text-xs">{agentInfo.phoneNumber}</div>
+                    </a>
+
+                    <a
+                      href={`https://wa.me/${agentInfo.whatsapp?.replace(/[^0-9]/g, '')}`}
+                      className="flex flex-col items-center gap-3 p-6 bg-surface-light dark:bg-surface-dark rounded hover:bg-primary hover:text-white transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-4xl text-primary group-hover:text-white">chat</span>
+                      <div className="text-sm font-medium">WhatsApp</div>
+                      <div className="text-xs">{agentInfo.whatsapp}</div>
+                    </a>
+
+                    <a
+                      href={`mailto:${agentInfo.email}`}
+                      className="flex flex-col items-center gap-3 p-6 bg-surface-light dark:bg-surface-dark rounded hover:bg-primary hover:text-white transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-4xl text-primary group-hover:text-white">mail</span>
+                      <div className="text-sm font-medium">Email</div>
+                      <div className="text-xs">{agentInfo.email}</div>
+                    </a>
+                  </div>
+
+                  <div className="bg-surface-light dark:bg-surface-dark p-6 rounded">
+                    <h3 className="font-bold text-heading-light dark:text-heading-dark mb-4">
+                      Coverage Areas
+                    </h3>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {agentInfo.areasOfCoverage.map((area, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-white dark:bg-black border border-border-light dark:border-border-dark rounded text-sm"
+                        >
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </div>
-      </main>
 
-      {/* Info Banner */}
-      <div className="bg-card border-t p-4">
-        <div className="container mx-auto">
-          <p className="text-sm text-muted-foreground text-center">
-            Review your landing page carefully. You can edit the details or publish it to get a live URL.
-          </p>
+        {/* Right Sidebar - Customization */}
+        <div className="w-80 bg-white dark:bg-black border-l border-border-light dark:border-border-dark p-6 overflow-auto">
+          <h3 className="text-lg font-display font-bold text-heading-light dark:text-heading-dark uppercase mb-6">
+            Customize Design
+          </h3>
+
+          {/* Color Picker */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-heading-light dark:text-heading-dark uppercase mb-2">
+              Primary Color
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {['#2563eb', '#7c3aed', '#db2777', '#dc2626', '#ea580c', '#16a34a', '#0891b2'].map((color) => (
+                <button
+                  key={color}
+                  onClick={() => handleColorChange(color)}
+                  className={`w-10 h-10 rounded border-2 transition-all ${
+                    siteDesign.primaryColor === color ? 'border-black dark:border-white scale-110' : 'border-gray-300'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="space-y-4 pt-6 border-t border-border-light dark:border-border-dark">
+            <div>
+              <div className="text-sm text-muted-light dark:text-muted-dark mb-1">Sections</div>
+              <div className="text-2xl font-bold text-heading-light dark:text-heading-dark">
+                {5 + (properties.length > 0 ? 1 : 0)}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-light dark:text-muted-dark mb-1">Properties</div>
+              <div className="text-2xl font-bold text-heading-light dark:text-heading-dark">
+                {properties.length}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-light dark:text-muted-dark mb-1">Services</div>
+              <div className="text-2xl font-bold text-heading-light dark:text-heading-dark">
+                {editableContent.services.length}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-8 space-y-3">
+            <button
+              onClick={handleAddProperties}
+              className="w-full flex items-center justify-between p-3 border border-border-light dark:border-border-dark hover:border-primary transition-colors"
+            >
+              <span className="text-sm font-medium">Manage Properties</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+
+            <button
+              onClick={() => router.push('/builder/create')}
+              className="w-full flex items-center justify-between p-3 border border-border-light dark:border-border-dark hover:border-primary transition-colors"
+            >
+              <span className="text-sm font-medium">Edit Agent Info</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
