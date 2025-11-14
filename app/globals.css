@@ -25,7 +25,7 @@
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 199 89% 48%;
-    --radius: 0.5rem;
+    --radius: 0px;
   }
 
   .dark {
@@ -57,6 +57,142 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Brutalist Design System Styles */
+@layer components {
+  .laptop-wireframe {
+    background-image: none !important;
+    background-color: #000000 !important;
+    border: 2px solid #FFD700;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+  }
+
+  .laptop-wireframe::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFFFFF;
+    border: 1px solid #FFD700;
+    margin: 10%;
+    box-sizing: border-box;
+  }
+
+  .laptop-wireframe::after {
+    content: 'BUILDING PLANS AHEAD';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem;
+    color: #FFD700;
+    text-align: center;
+    line-height: 1.2;
+    border: 1px dashed #FFD700;
+    padding: 0.5rem 1rem;
+  }
+
+  .brutalist-icon {
+    color: #FFD700;
+    background-color: #000000;
+    border: 1px solid #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    font-size: 2rem;
+    line-height: 1;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .btn-brutalist {
+    border-radius: 0px !important;
+    border: 2px solid #000000 !important;
+    background-color: #FFD700 !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-brutalist:hover {
+    background-color: #E0B400 !important;
+    border-color: #000000 !important;
+  }
+
+  .form-input-brutalist,
+  .form-textarea-brutalist {
+    border-radius: 0px !important;
+    border: 1px solid #000000 !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .dark .form-input-brutalist,
+  .dark .form-textarea-brutalist {
+    background-color: #1A1A1A !important;
+    color: #E0E0E0 !important;
+    border-color: #FFD700 !important;
+  }
+
+  .form-input-brutalist:focus,
+  .form-textarea-brutalist:focus {
+    ring: none !important;
+    outline: 2px solid #FFD700 !important;
+    outline-offset: 0px !important;
+  }
+
+  .tab-brutalist {
+    border-bottom: 3px solid transparent !important;
+    color: #666666 !important;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .dark .tab-brutalist {
+    color: #AAAAAA !important;
+  }
+
+  .tab-brutalist.active {
+    border-color: #FFD700 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+  }
+
+  .dark .tab-brutalist.active {
+    color: #FFFFFF !important;
+  }
+
+  .tab-brutalist:hover:not(.active) {
+    color: #FFD700 !important;
+  }
+
+  .logo-svg-brutalist path {
+    fill: #FFD700 !important;
+  }
+
+  .social-icon-brutalist {
+    color: #666666 !important;
+  }
+
+  .dark .social-icon-brutalist {
+    color: #AAAAAA !important;
+  }
+
+  .social-icon-brutalist:hover {
+    color: #FFD700 !important;
   }
 }
 

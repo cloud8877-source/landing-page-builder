@@ -18,15 +18,26 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Brutalist Palette: Black, White, Accent Yellow
+        primary: "#FFD700", // Bright Yellow
+        "background-light": "#FFFFFF",
+        "background-dark": "#000000",
+        "surface-light": "#F0F0F0",
+        "surface-dark": "#1A1A1A",
+        "heading-light": "#000000",
+        "heading-dark": "#FFFFFF",
+        "body-light": "#333333",
+        "body-dark": "#E0E0E0",
+        "muted-light": "#666666",
+        "muted-dark": "#AAAAAA",
+        "border-light": "#CCCCCC",
+        "border-dark": "#333333",
+        // Keep existing shadcn colors for compatibility
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -52,10 +63,17 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      fontFamily: {
+        display: ["Oswald", "sans-serif"], // Heavy, unadorned sans-serif for headings
+        body: ["IBM Plex Mono", "monospace"], // Robust monospace for industrial feel
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        DEFAULT: "0px", // Sharp, brutalist corners
+        lg: "0px",
+        md: "0px",
+        sm: "0px",
+        xl: "0px",
+        full: "0px",
       },
       keyframes: {
         "accordion-down": {

@@ -1,14 +1,24 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Oswald, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 
-const inter = Inter({ subsets: ['latin'] });
+const oswald = Oswald({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-oswald'
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-ibm-plex-mono'
+});
 
 export const metadata: Metadata = {
-  title: 'Property Landing Builder - Malaysia',
-  description: 'Multi-tenant landing page builder for Malaysian property agents',
+  title: 'PropSite Pro - Build Your Professional Property Website',
+  description: 'The #1 website builder for Malaysian property agents. Attract more clients, close more deals.',
 };
 
 export default function RootLayout({
@@ -18,7 +28,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+      </head>
+      <body className={`${oswald.variable} ${ibmPlexMono.variable} font-body`}>
         <AuthProvider>
           <Navbar />
           <main>{children}</main>
