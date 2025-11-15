@@ -169,7 +169,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Update the user's display name
       if (displayName && result.user) {
         console.log('🏷️ Updating display name to:', displayName);
-        await result.user.updateProfile({ displayName });
+        // Type assertion to handle Firebase User object
+        const firebaseUser = result.user as any;
+        await firebaseUser.updateProfile({ displayName });
       }
 
       console.log('💾 Creating user document in Firestore...');
