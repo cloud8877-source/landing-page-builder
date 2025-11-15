@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   User as FirebaseUser,
+  UserCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -17,9 +18,9 @@ import { User } from '@/lib/types';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<UserCredential>;
+  signUp: (email: string, password: string, displayName: string) => Promise<UserCredential>;
+  signInWithGoogle: () => Promise<UserCredential>;
   logout: () => Promise<void>;
 }
 
