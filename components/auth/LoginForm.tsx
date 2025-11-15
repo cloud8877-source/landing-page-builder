@@ -26,24 +26,52 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
+      console.log('🔐 Starting authentication...');
+      console.log('Email:', email);
+      console.log('Mode:', isSignUp ? 'Sign Up' : 'Sign In');
+
       if (isSignUp) {
         await signUp(email, password, displayName);
       } else {
         await signIn(email, password);
       }
 
+      console.log('✅ Authentication successful, waiting for auth state update...');
+
       // Add a small delay to let auth state update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Check if there's demo data to convert
       if (hasDemoDataToConvert()) {
+        console.log('🔄 Redirecting to complete signup...');
         router.push('/complete-signup');
       } else {
+        console.log('🏠 Redirecting to dashboard...');
         router.push('/dashboard');
       }
     } catch (err: any) {
-      console.error('Login form error:', err);
-      setError(err.message || 'An error occurred');
+      console.error('❌ Login form error:', err);
+      console.error('Error code:', err.code);
+      console.error('Error message:', err.message);
+
+      let userFriendlyError = err.message || 'An error occurred';
+
+      // Provide more user-friendly error messages
+      if (err.code === 'auth/user-not-found') {
+        userFriendlyError = 'No account found with this email address.';
+      } else if (err.code === 'auth/wrong-password') {
+        userFriendlyError = 'Incorrect password. Please try again.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        userFriendlyError = 'An account with this email already exists.';
+      } else if (err.code === 'auth/weak-password') {
+        userFriendlyError = 'Password should be at least 6 characters.';
+      } else if (err.code === 'auth/invalid-email') {
+        userFriendlyError = 'Please enter a valid email address.';
+      } else if (err.code === 'auth/configuration-not-found') {
+        userFriendlyError = 'Authentication service is not configured. Please contact support.';
+      }
+
+      setError(userFriendlyError);
     } finally {
       setLoading(false);
     }
@@ -54,20 +82,38 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
+      console.log('🔐 Starting Google sign-in...');
       await signInWithGoogle();
 
+      console.log('✅ Google authentication successful, waiting for auth state update...');
+
       // Add a small delay to let auth state update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Check if there's demo data to convert
       if (hasDemoDataToConvert()) {
+        console.log('🔄 Redirecting to complete signup...');
         router.push('/complete-signup');
       } else {
+        console.log('🏠 Redirecting to dashboard...');
         router.push('/dashboard');
       }
     } catch (err: any) {
-      console.error('Google sign-in error:', err);
-      setError(err.message || 'An error occurred');
+      console.error('❌ Google sign-in error:', err);
+      console.error('Error code:', err.code);
+      console.error('Error message:', err.message);
+
+      let userFriendlyError = err.message || 'An error occurred during Google sign-in.';
+
+      if (err.code === 'auth/popup-closed-by-user') {
+        userFriendlyError = 'Sign-in popup was closed before completion.';
+      } else if (err.code === 'auth/popup-blocked') {
+        userFriendlyError = 'Sign-in popup was blocked by the browser. Please allow popups.';
+      } else if (err.code === 'auth/configuration-not-found') {
+        userFriendlyError = 'Authentication service is not configured. Please contact support.';
+      }
+
+      setError(userFriendlyError);
     } finally {
       setLoading(false);
     }
