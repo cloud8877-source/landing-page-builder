@@ -102,7 +102,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('❌ Error loading user data:', error);
-      console.error('Error details:', error.code, error.message);
+
+      // Type assertion to handle unknown error type
+      const firebaseError = error as any;
+      console.error('Error details:', firebaseError.code, firebaseError.message);
 
       // Don't set user to null on error - let auth continue
       // Set a basic user object to prevent auth failures
@@ -136,11 +139,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return result;
     } catch (error) {
       console.error('❌ Sign in error:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
+
+      // Type assertion to handle unknown error type
+      const firebaseError = error as any;
+      console.error('Error code:', firebaseError.code);
+      console.error('Error message:', firebaseError.message);
 
       // Provide more detailed error information
-      if (error.code === 'auth/configuration-not-found') {
+      if (firebaseError.code === 'auth/configuration-not-found') {
         console.error('🚨 CRITICAL: Firebase Authentication is not configured properly!');
         console.error('Please go to Firebase Console > Authentication > Sign-in method');
         console.error('and enable Email/Password authentication');
@@ -180,10 +186,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return result;
     } catch (error) {
       console.error('❌ Sign up error:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
 
-      if (error.code === 'auth/configuration-not-found') {
+      // Type assertion to handle unknown error type
+      const firebaseError = error as any;
+      console.error('Error code:', firebaseError.code);
+      console.error('Error message:', firebaseError.message);
+
+      if (firebaseError.code === 'auth/configuration-not-found') {
         console.error('🚨 CRITICAL: Firebase Authentication is not configured properly!');
         console.error('Please go to Firebase Console > Authentication > Sign-in method');
         console.error('and enable Email/Password authentication');
