@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBuilderStore } from '@/lib/store/builder-store';
 import { toast } from 'sonner';
-import geminiService from '@/lib/services/gemini-service';
 
 const malaysianAreas = [
   'Kuala Lumpur', 'Petaling Jaya', 'Mont Kiara', 'Bangsar', 'KLCC',
@@ -99,7 +98,19 @@ export default function CreateBuilderPage() {
   const generateBio = async () => {
     setIsGenerating(true);
     try {
-      const bio = await geminiService.generateBio(agentInfo);
+      const response = await fetch('/api/ai/suggest-bio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ agentInfo }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate bio');
+      }
+
+      const { bio } = await response.json();
       setAgentInfo({ bio });
       toast.success('Bio generated successfully!');
     } catch (error) {
@@ -112,7 +123,24 @@ export default function CreateBuilderPage() {
   const generateTagline = async () => {
     setIsGenerating(true);
     try {
-      const tagline = await geminiService.generateTagline(agentInfo);
+      const response = await fetch('/api/ai/suggest-bio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agentInfo,
+          type: 'tagline'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate tagline');
+      }
+
+      // For now, use the first part of bio as tagline or generate from bio
+      const { bio } = await response.json();
+      const tagline = bio.split('.')[0] || 'Your Trusted Property Agent';
       setAgentInfo({ tagline });
       toast.success('Tagline generated successfully!');
     } catch (error) {
@@ -176,12 +204,25 @@ export default function CreateBuilderPage() {
   const handleSubmit = async () => {
     setIsGenerating(true);
     try {
-      const generatedContent = await geminiService.generateLandingPageContent(agentInfo);
+      const response = await fetch('/api/ai/generate-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ agentInfo }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const generatedContent = await response.json();
       useBuilderStore.getState().setGeneratedContent(generatedContent);
       toast.success('Website content generated!');
       router.push('/builder/preview');
     } catch (error) {
       toast.error('Failed to generate content. Please try again.');
+    } finally {
       setIsGenerating(false);
     }
   };

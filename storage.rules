@@ -15,15 +15,28 @@ service firebase.storage {
 
     // Helper function to verify App Check token
     function hasValidAppCheck() {
-      // In production, uncomment this to enforce App Check
-      // return request.app != null;
-      return true; // Allow during testing phase
+      return request.app != null;
     }
 
     // Helper function to validate file size and type
     function isValidImage() {
       return request.resource.size < 5 * 1024 * 1024 && // 5MB max
-             request.resource.contentType.matches('image/.*');
+             request.resource.contentType.matches('image/(jpeg|jpg|png|webp)') &&
+             request.resource.name.matches('^[a-zA-Z0-9_-]+\\.[a-zA-Z]{3,4}$');
+    }
+
+    // Helper function to validate profile photos
+    function isValidProfilePhoto() {
+      return request.resource.size < 2 * 1024 * 1024 && // 2MB max for profile photos
+             request.resource.contentType.matches('image/(jpeg|jpg|png|webp)') &&
+             request.resource.name.matches('^[a-zA-Z0-9_-]+_profile_[0-9]+_[a-z0-9]+\\.(jpeg|jpg|png|webp)$');
+    }
+
+    // Helper function to validate banner images
+    function isValidBanner() {
+      return request.resource.size < 10 * 1024 * 1024 && // 10MB max for banners
+             request.resource.contentType.matches('image/(jpeg|jpg|png|webp)') &&
+             request.resource.name.matches('^[a-zA-Z0-9_-]+_banner_[0-9]+_[a-z0-9]+\\.(jpeg|jpg|png|webp)$');
     }
 
     // User profile photos
@@ -33,7 +46,7 @@ service firebase.storage {
 
       // Only the user can upload their own profile photo
       allow write: if isOwner(userId) &&
-                     isValidImage() &&
+                     isValidProfilePhoto() &&
                      hasValidAppCheck();
     }
 

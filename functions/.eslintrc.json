@@ -1,0 +1,15 @@
+{
+  "root": true,
+  "env": {
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "google"
+  ],
+  "rules": {
+    "quotes": ["error", "double"],
+    "object-curly-spacing": ["off"],
+    "max-len": ["error", {"code": 120}]
+  }
+}

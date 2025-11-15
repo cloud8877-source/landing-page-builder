@@ -2,28 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { generateWhatsAppLink } from '@/lib/utils';
+import { validateInput, contactFormSchema } from '@/lib/validation/schemas';
+import { withRateLimitMiddleware, RATE_LIMIT_CONFIGS } from '@/lib/middleware/rate-limit';
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { siteId, name, email, phone, message, propertyInterest } = body;
+  return withRateLimitMiddleware(async (req: NextRequest) => {
+    try {
+      const body = await req.json();
 
-    // Validate required fields
-    if (!name || !email || !phone) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
+    // Map the API interface to our schema
+    const validationData = {
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      message: body.message || 'No message provided',
+      pageId: body.pageId || body.siteId || 'unknown'
+    };
 
-    // Create lead document
+    // Validate input using Zod schema
+    const validatedData = validateInput(contactFormSchema, validationData);
+
+    // Create lead document with validated data
     const leadData = {
-      siteId: siteId || 'unknown',
-      name,
-      email,
-      phone,
-      message: message || '',
-      propertyInterest: propertyInterest || '',
+      siteId: validatedData.pageId,
+      name: validatedData.name,
+      email: validatedData.email,
+      phone: validatedData.phone,
+      message: validatedData.message,
+      propertyInterest: body.propertyInterest || '',
       source: 'landing_page',
       status: 'new',
       createdAt: new Date(),
@@ -33,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Generate WhatsApp notification link (optional)
     const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_DEFAULT_NUMBER;
-    const whatsappMessage = `New lead from ${name}!\nEmail: ${email}\nPhone: ${phone}\nInterest: ${propertyInterest}\nMessage: ${message}`;
+    const whatsappMessage = `New lead from ${validatedData.name}!\nEmail: ${validatedData.email}\nPhone: ${validatedData.phone}\nInterest: ${body.propertyInterest}\nMessage: ${validatedData.message}`;
     const whatsappLink = whatsappNumber
       ? generateWhatsAppLink(whatsappNumber, whatsappMessage)
       : null;
@@ -45,11 +51,21 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating lead:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
+
+    // Handle validation errors separately
+    if (error instanceof Error && error.message.includes('Validation failed')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
+      return NextResponse.json(
+      { error: 'Failed to create lead. Please try again.' },
       { status: 500 }
     );
   }
+}, RATE_LIMIT_CONFIGS.CONTACT_FORM)(request);
 }
 
 export async function GET(request: NextRequest) {

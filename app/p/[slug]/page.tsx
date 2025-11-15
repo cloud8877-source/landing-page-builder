@@ -1,6 +1,7 @@
 import { collection, query, where, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { notFound } from 'next/navigation';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface PageProps {
   params: {
@@ -33,12 +34,27 @@ export default async function PublicLandingPage({ params }: PageProps) {
       console.error('Failed to increment views:', error);
     }
 
-    // Return the HTML content directly
-    const htmlContent = pageData.htmlContent;
+    // Sanitize HTML content to prevent XSS attacks
+    const sanitizedHtmlContent = DOMPurify.sanitize(pageData.htmlContent, {
+      ALLOWED_TAGS: [
+        'div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'a', 'img', 'ul', 'ol', 'li', 'strong', 'em', 'u', 'i', 'b',
+        'br', 'hr', 'section', 'article', 'header', 'footer', 'nav',
+        'main', 'aside', 'figure', 'figcaption', 'blockquote', 'code',
+        'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'button',
+        'form', 'input', 'textarea', 'label', 'select', 'option'
+      ],
+      ALLOWED_ATTR: [
+        'href', 'src', 'alt', 'title', 'class', 'id', 'style',
+        'width', 'height', 'type', 'name', 'placeholder', 'value',
+        'data-*', 'role', 'aria-*'
+      ],
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    });
 
     return (
       <div
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
+        dangerouslySetInnerHTML={{ __html: sanitizedHtmlContent }}
         suppressHydrationWarning
       />
     );

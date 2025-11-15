@@ -37,8 +37,8 @@ function CustomizePageContent() {
       logoUrl: '',
     },
     branding: {
-      primaryColor: template.designStyle.primaryColor,
-      secondaryColor: template.designStyle.secondaryColor,
+      primaryColor: template?.designStyle?.primaryColor || '#2563eb',
+      secondaryColor: template?.designStyle?.secondaryColor || '#64748b',
     },
     properties: [],
   });
@@ -189,7 +189,7 @@ function CustomizePageContent() {
               </Link>
               <h1 className="text-2xl font-bold">Customize Your Landing Page</h1>
               <p className="text-sm text-muted-foreground">
-                Step 2 of 3: Using {template.name} template
+                Step 2 of 3: Using {template?.name || 'Default'} template
               </p>
             </div>
             <Button onClick={handleNext} size="lg">

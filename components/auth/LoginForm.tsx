@@ -32,6 +32,9 @@ export default function LoginForm() {
         await signIn(email, password);
       }
 
+      // Add a small delay to let auth state update
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Check if there's demo data to convert
       if (hasDemoDataToConvert()) {
         router.push('/complete-signup');
@@ -39,7 +42,9 @@ export default function LoginForm() {
         router.push('/dashboard');
       }
     } catch (err: any) {
+      console.error('Login form error:', err);
       setError(err.message || 'An error occurred');
+    } finally {
       setLoading(false);
     }
   }
@@ -51,6 +56,9 @@ export default function LoginForm() {
     try {
       await signInWithGoogle();
 
+      // Add a small delay to let auth state update
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Check if there's demo data to convert
       if (hasDemoDataToConvert()) {
         router.push('/complete-signup');
@@ -58,7 +66,9 @@ export default function LoginForm() {
         router.push('/dashboard');
       }
     } catch (err: any) {
+      console.error('Google sign-in error:', err);
       setError(err.message || 'An error occurred');
+    } finally {
       setLoading(false);
     }
   }

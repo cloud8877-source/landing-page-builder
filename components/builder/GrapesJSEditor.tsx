@@ -36,6 +36,8 @@ export default function GrapesJSEditor({ onSave, initialHtml = '', initialCss = 
         styles: [
           'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
         ],
+        // Note: SRI is not directly supported by GrapesJS canvas styles
+        // These are loaded dynamically, so they're covered by CSP instead
       },
       blockManager: {
         appendTo: '#blocks',
@@ -273,6 +275,8 @@ export default function GrapesJSEditor({ onSave, initialHtml = '', initialCss = 
       <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha384-3B6NwesSXE7YJlcLI9RpRqGf2p/EgVH8BgoKTaUrmKNDkHPStTQ3EyoYjCGXaOTS"
+        crossOrigin="anonymous"
       />
 
       <div className="absolute top-0 right-0 z-10 p-4">

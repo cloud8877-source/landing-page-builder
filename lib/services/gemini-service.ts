@@ -2,17 +2,55 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { AgentInfo, GeneratedContent } from '../store/builder-store';
 
 class GeminiService {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI: GoogleGenerativeAI | null = null;
+  private model: any = null;
   private cache: Map<string, any> = new Map();
+  private isInitialized: boolean = false;
 
   constructor() {
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    if (!apiKey) {
-      console.warn('Gemini API key not found');
+    this.initializeGemini();
+  }
+
+  private initializeGemini() {
+    try {
+      // Get API key from environment variables
+      let apiKey = null;
+
+      // Try multiple sources for the API key
+      if (typeof process !== 'undefined' && process.env) {
+        // Check if we're in a Firebase Functions environment with config
+        try {
+          if (typeof require !== 'undefined') {
+            const functions = require('firebase-functions');
+            const functionsConfig = functions.config();
+            if (functionsConfig?.gemini?.api_key) {
+              apiKey = functionsConfig.gemini.api_key;
+            }
+          }
+        } catch (error) {
+          // Not in Firebase Functions environment, continue with process.env
+        }
+
+        // Fallback to direct environment variable
+        if (!apiKey) {
+          apiKey = process.env.GEMINI_API_KEY;
+        }
+      }
+
+      if (!apiKey) {
+        console.warn('Gemini API key not found. AI features will be disabled.');
+        this.isInitialized = false;
+        return;
+      }
+
+      this.genAI = new GoogleGenerativeAI(apiKey);
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+      this.isInitialized = true;
+      console.log('Gemini AI service initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize Gemini service:', error);
+      this.isInitialized = false;
     }
-    this.genAI = new GoogleGenerativeAI(apiKey || '');
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
   }
 
   private getCacheKey(type: string, data: any): string {
@@ -22,6 +60,12 @@ class GeminiService {
   async generateLandingPageContent(
     agentInfo: Partial<AgentInfo>
   ): Promise<GeneratedContent> {
+    // Check if Gemini is initialized
+    if (!this.isInitialized || !this.model) {
+      console.warn('Gemini service not initialized, returning default content');
+      return this.getDefaultContent(agentInfo);
+    }
+
     const cacheKey = this.getCacheKey('landing-page', agentInfo);
 
     if (this.cache.has(cacheKey)) {
@@ -136,10 +180,58 @@ Make it professional, trustworthy, and culturally appropriate for Malaysian mark
 
       this.cache.set(cacheKey, generatedContent);
       return generatedContent;
-    } catch (error) {
+      } catch (error) {
       console.error('Error generating content:', error);
-      throw new Error('Failed to generate content. Please try again.');
+      return this.getDefaultContent(agentInfo);
     }
+  }
+
+  private getDefaultContent(agentInfo: Partial<AgentInfo>): GeneratedContent {
+    return {
+      hero: {
+        headline: 'Your Trusted Property Agent',
+        subheadline: 'Finding Your Dream Home in Malaysia',
+        ctaText: 'Contact Me Today',
+      },
+      about: {
+        bio: agentInfo.bio || 'Professional property agent serving the Malaysian market with expertise in residential and commercial properties.',
+        achievements: ['Licensed Property Agent', `${agentInfo.yearsOfExperience || 0}+ Years Experience`, 'Satisfied Clients'],
+        whyChooseMe: ['Local Market Expertise', 'Personalized Service', 'Results Driven'],
+      },
+      services: [
+        { title: 'Property Sales', description: 'Expert assistance in buying and selling properties', icon: 'home' },
+        { title: 'Property Rental', description: 'Find the perfect rental property for you', icon: 'key' },
+        { title: 'Property Investment', description: 'Investment advice for property buyers', icon: 'trending-up' },
+        { title: 'Property Valuation', description: 'Accurate market valuations', icon: 'calculator' },
+        { title: 'Legal Assistance', description: 'Guidance through legal processes', icon: 'file-text' },
+        { title: 'Market Analysis', description: 'Comprehensive market insights', icon: 'bar-chart' },
+      ],
+      testimonials: [
+        {
+          name: 'Ahmad Ibrahim',
+          text: 'Excellent service and very professional. Helped me find my dream condo.',
+          rating: 5,
+          propertyType: 'Condo',
+        },
+        {
+          name: 'Sarah Tan',
+          text: 'Very knowledgeable about the market. Made the process smooth and easy.',
+          rating: 5,
+          propertyType: 'Landed',
+        },
+        {
+          name: 'Raj Kumar',
+          text: 'Highly recommended! Found us the perfect family home.',
+          rating: 5,
+          propertyType: 'Terrace House',
+        },
+      ],
+      seo: {
+        title: `${agentInfo.fullName || 'Property Agent'} - ${agentInfo.areasOfCoverage?.join(', ') || 'Malaysia'}`,
+        description: `Professional property agent specializing in ${agentInfo.specialization || 'residential and commercial'} properties`,
+        keywords: ['property agent', 'real estate', 'Malaysia', ...(agentInfo.areasOfCoverage || [])],
+      },
+    };
   }
 
   async generateBio(agentInfo: Partial<AgentInfo>): Promise<string> {

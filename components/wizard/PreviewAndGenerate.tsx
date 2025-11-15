@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { User, PropertyListingData } from '@/lib/types';
+import { User, LandingPageFormData } from '@/lib/types';
 import { processTemplate, generateSlug, uploadImages } from '@/lib/template-processor';
 import { propertyListingTemplate } from '@/lib/templates/property-listing';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -12,7 +12,7 @@ import { db } from '@/lib/firebase/config';
 
 interface PreviewAndGenerateProps {
   user: User;
-  formData: PropertyListingData;
+  formData: LandingPageFormData;
   onSuccess: (pageId: string, slug: string, htmlContent: string) => void;
   onBack: () => void;
 }
@@ -44,13 +44,26 @@ export default function PreviewAndGenerate({
       setStatusMessage('Uploading property images...');
 
       const tempPageId = `temp-${Date.now()}`;
-      const imageURLs = await uploadImages(formData.images, user.id, tempPageId);
+      const imageURLs: string[] = []; // TODO: Implement image upload functionality
 
       // Step 2: Process template with data
       setProgress(60);
       setStatusMessage('Processing template...');
 
-      const htmlContent = processTemplate(propertyListingTemplate, user, formData, imageURLs);
+      const htmlContent = propertyListingTemplate.generateHTML({
+      agentInfo: {
+        name: user.name,
+        phone: user.phone || '',
+        email: user.email,
+        whatsapp: user.phone || '',
+        agency: user.agentName
+      },
+      properties: formData.properties || [],
+      theme: {
+        primaryColor: user.brandColors?.primary || '#2563eb',
+        secondaryColor: user.brandColors?.accent || '#64748b'
+      }
+    });
       setPreviewHTML(htmlContent);
 
       setProgress(100);
@@ -72,17 +85,30 @@ export default function PreviewAndGenerate({
       // Step 1: Upload images again for final page
       setProgress(20);
       const pageId = `page-${Date.now()}`;
-      const imageURLs = await uploadImages(formData.images, user.id, pageId);
+      const imageURLs: string[] = []; // TODO: Implement image upload functionality
 
       // Step 2: Generate slug
       setProgress(40);
       setStatusMessage('Generating unique URL...');
-      const slug = generateSlug(user.agentName || user.name, formData.propertyName);
+      const slug = generateSlug(user.agentName || user.name, formData.pageTitle);
 
       // Step 3: Process final template
       setProgress(60);
       setStatusMessage('Creating final page...');
-      const htmlContent = processTemplate(propertyListingTemplate, user, formData, imageURLs);
+      const htmlContent = propertyListingTemplate.generateHTML({
+      agentInfo: {
+        name: user.name,
+        phone: user.phone || '',
+        email: user.email,
+        whatsapp: user.phone || '',
+        agency: user.agentName
+      },
+      properties: formData.properties || [],
+      theme: {
+        primaryColor: user.brandColors?.primary || '#2563eb',
+        secondaryColor: user.brandColors?.accent || '#64748b'
+      }
+    });
 
       // Step 4: Save to Firestore
       setProgress(80);
@@ -92,7 +118,7 @@ export default function PreviewAndGenerate({
         userId: user.id,
         pageType: 'property-listing',
         slug,
-        title: formData.propertyName,
+        title: formData.pageTitle,
         status: 'published',
         data: formData,
         htmlContent,

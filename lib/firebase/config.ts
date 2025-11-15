@@ -15,28 +15,35 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+// Debug configuration
+console.log('Firebase config:', {
+  apiKey: firebaseConfig.apiKey ? 'Set' : 'Not set',
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  appId: firebaseConfig.appId ? 'Set' : 'Not set',
+});
+
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+console.log('Firebase app initialized:', app.name);
 
-// Initialize App Check (only in browser)
+// Initialize App Check (only in browser) - DISABLED FOR NOW
 let appCheck;
 if (typeof window !== 'undefined') {
-  // Self-sign app check token for development
-  // @ts-ignore
-  if (process.env.NODE_ENV === 'development') {
-    // @ts-ignore
-    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  }
+  console.warn('App Check is disabled to prevent authentication issues during development');
 
+  // Uncomment this when you have a proper reCAPTCHA v3 site key
+  /*
   const reCaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-  if (reCaptchaSiteKey) {
+  if (reCaptchaSiteKey && reCaptchaSiteKey !== 'your_recaptcha_site_key') {
     appCheck = initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider(reCaptchaSiteKey),
       isTokenAutoRefreshEnabled: true
     });
   } else {
-    console.warn('reCAPTCHA site key not found. App Check is not initialized.');
+    console.warn('Valid reCAPTCHA site key not found. App Check is not initialized.');
   }
+  */
 }
 
 // Initialize services

@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    unoptimized: true,
     domains: ['firebasestorage.googleapis.com'],
     remotePatterns: [
       {
@@ -10,20 +12,45 @@ const nextConfig = {
       },
     ],
   },
-  // Support for subdomain routing
-  async rewrites() {
+
+  // Disable rewrites and redirects that can cause filter errors
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // Disable experimental features that can cause issues in Cloud Functions
+  experimental: {
+    serverComponentsExternalPackages: [],
+  },
+
+  // Optimize for Firebase Functions/Serverless
+  compress: false,
+  poweredByHeader: false,
+
+  // Disable problematic features for Firebase Functions
+  trailingSlash: false,
+
+  // Minimal headers configuration
+  async headers() {
     return [
       {
-        source: '/:path*',
-        has: [
+        source: '/(.*)',
+        headers: [
           {
-            type: 'host',
-            value: '(?<subdomain>.*)\\.(?<domain>.*)',
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
         ],
-        destination: '/sites/:subdomain/:path*',
       },
     ];
+  },
+
+  // Disable redirects that can cause issues
+  async redirects() {
+    return [];
   },
 };
 

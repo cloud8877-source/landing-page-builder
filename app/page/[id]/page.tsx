@@ -128,5 +128,28 @@ export default function PublishedLandingPage() {
       ? TemplateB
       : TemplateC;
 
-  return <TemplateComponent data={landingPage} />;
+  // Transform landingPage data to match template props
+  const templateData = {
+    agentName: landingPage.agentInfo.name || 'Property Agent',
+    agentTitle: 'Professional Real Estate Agent',
+    agencyName: landingPage.pageTitle || 'Real Estate Agency',
+    phone: landingPage.agentInfo.phone || '',
+    email: landingPage.agentInfo.email || '',
+    whatsapp: landingPage.agentInfo.whatsapp || '',
+    about: `Welcome to ${landingPage.pageTitle || 'my real estate page'}. I'm a dedicated property agent committed to helping you find your perfect home.`,
+    properties: landingPage.properties?.map(prop => ({
+      title: prop.title || '',
+      description: prop.description || '',
+      price: prop.price || 0,
+      location: prop.location || '',
+      image: prop.photos?.[0]
+    })) || [],
+    theme: landingPage.branding ? {
+      primaryColor: landingPage.branding.primaryColor,
+      secondaryColor: landingPage.branding.secondaryColor,
+      fontFamily: 'Inter, sans-serif'
+    } : undefined
+  };
+
+  return <TemplateComponent data={templateData} />;
 }

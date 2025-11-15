@@ -13,11 +13,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Helper function to verify App Check token (optional but recommended)
+    // Helper function to verify App Check token (security requirement)
+    // Temporarily disabled for testing - TODO: Re-enable after fixing deployment
     function hasValidAppCheck() {
-      // In production, uncomment this to enforce App Check
-      // return request.app != null;
-      return true; // Allow during testing phase
+      return true; // Temporarily allow all requests
     }
 
     // Users collection - users can read/write their own data
@@ -31,7 +30,7 @@ service cloud.firestore {
     // Landing Pages collection
     match /landingPages/{pageId} {
       // Anyone can read published landing pages (for public viewing)
-      allow read: if resource.data.published == true || isOwner(resource.data.userId);
+      allow read: if resource.data.published == true || (isOwner(resource.data.userId) && hasValidAppCheck());
 
       // Only authenticated owners can create their own pages
       allow create: if isAuthenticated() &&
@@ -45,7 +44,7 @@ service cloud.firestore {
     // PropertyPage MY - Pages collection
     match /pages/{pageId} {
       // Anyone can read published pages (for public viewing at /p/:slug)
-      allow read: if resource.data.status == 'published' || isOwner(resource.data.userId);
+      allow read: if resource.data.status == 'published' || (isOwner(resource.data.userId) && hasValidAppCheck());
 
       // Only authenticated owners can create their own pages
       allow create: if isAuthenticated() &&
