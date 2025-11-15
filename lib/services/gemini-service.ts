@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { AgentInfo, GeneratedContent } from '../store/builder-store';
+import { envConfig } from '../config/environment';
 
 class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
@@ -13,32 +14,12 @@ class GeminiService {
 
   private initializeGemini() {
     try {
-      // Get API key from environment variables
-      let apiKey = null;
-
-      // Try multiple sources for the API key
-      if (typeof process !== 'undefined' && process.env) {
-        // Check if we're in a Firebase Functions environment with config
-        try {
-          if (typeof require !== 'undefined') {
-            const functions = require('firebase-functions');
-            const functionsConfig = functions.config();
-            if (functionsConfig?.gemini?.api_key) {
-              apiKey = functionsConfig.gemini.api_key;
-            }
-          }
-        } catch (error) {
-          // Not in Firebase Functions environment, continue with process.env
-        }
-
-        // Fallback to direct environment variable
-        if (!apiKey) {
-          apiKey = process.env.GEMINI_API_KEY;
-        }
-      }
+      // Get API key from centralized environment configuration
+      const apiKey = envConfig.apis.gemini;
 
       if (!apiKey) {
         console.warn('Gemini API key not found. AI features will be disabled.');
+        console.warn('To enable AI features, set GEMINI_API_KEY environment variable.');
         this.isInitialized = false;
         return;
       }
@@ -63,6 +44,7 @@ class GeminiService {
     // Check if Gemini is initialized
     if (!this.isInitialized || !this.model) {
       console.warn('Gemini service not initialized, returning default content');
+      console.warn('To enable AI generation, set GEMINI_API_KEY in your environment variables');
       return this.getDefaultContent(agentInfo);
     }
 
