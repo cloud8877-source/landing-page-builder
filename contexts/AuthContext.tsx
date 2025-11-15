@@ -206,8 +206,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signInWithGoogle() {
+    console.log('🔐 Starting Google sign-in...');
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    console.log('✅ Google sign in successful!');
+    console.log('👤 User ID:', result.user.uid);
+    console.log('📧 User Email:', result.user.email);
+    console.log('👁️ User Email Verified:', result.user.emailVerified);
+    console.log('🎭 Display Name:', result.user.displayName);
+    return result;
   }
 
   async function logout() {
