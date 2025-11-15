@@ -41,15 +41,18 @@ export default function LoginForm() {
       console.log('✅ Authentication successful, waiting for auth state update...');
 
       // Add a small delay to let auth state update
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Check if there's demo data to convert
-      if (hasDemoDataToConvert()) {
+      const hasDemoData = hasDemoDataToConvert();
+      console.log('📊 Has demo data to convert:', hasDemoData);
+
+      if (hasDemoData) {
         console.log('🔄 Redirecting to complete signup...');
-        router.push('/complete-signup');
+        await router.push('/complete-signup');
       } else {
         console.log('🏠 Redirecting to dashboard...');
-        router.push('/dashboard');
+        await router.push('/dashboard');
       }
     } catch (err: any) {
       console.error('❌ Login form error:', err);
@@ -90,15 +93,18 @@ export default function LoginForm() {
       console.log('✅ Google authentication successful, waiting for auth state update...');
 
       // Add a small delay to let auth state update
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Check if there's demo data to convert
-      if (hasDemoDataToConvert()) {
+      const hasDemoData = hasDemoDataToConvert();
+      console.log('📊 Has demo data to convert:', hasDemoData);
+
+      if (hasDemoData) {
         console.log('🔄 Redirecting to complete signup...');
-        router.push('/complete-signup');
+        await router.push('/complete-signup');
       } else {
         console.log('🏠 Redirecting to dashboard...');
-        router.push('/dashboard');
+        await router.push('/dashboard');
       }
     } catch (err: any) {
       console.error('❌ Google sign-in error:', err);
